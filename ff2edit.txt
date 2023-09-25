@@ -1,0 +1,30 @@
+Plugin Edit Request for Freak Fortress 2 for Boss vs Boss mode + Plugin (Paid) 150$~ PayPal
+Discord: Kolaxie#4295
+
+Freak Fortress 2 Plugin Edit (Latest Fork of FF2 Unofficial by BatFox)
+
+>Change gamemode name to "Boss vs Boss Gemara"
+>Play client boss intro, theme and outro (play ennemy outro if his team dies)
+>Remove Halloween TF2 health bar on the screen without removing the BvB health system
+>Add a mannpower logo above player head (with no effect) to show their team
+>Disable medkit and ammopack spawn on the whole map
+>Add a custom invisible timer of 15 mins before making all bosses lose 100hp per seconds (Show timer at two minutes left before the hp lose start)
+>Add a new command (/ff2party) this command open a SM menu with a bunch of room, if 2 player join the same room, they will be in the same team every round. (Raid and Ultra round included)
+
+Additional Plugin for BvB: Raid and Ultra Round.
+
+>Raid rounds are a special round that make a very powerfull spawn on the blue team and make all other bosses on the red team team up against it
+>Add a custom plugin value "raid" "1/0" and "ultra" "1/0" for CFG files
+>Raid rounds can be triggered by making them spawn via the TextStore plugin of BatFox, when someone use a Raid in the TextStore plugin, make message pop up in the chat for client with the [FF2] Tag (something like [FF2]Raid Selected, Get Ready) and remove it from player inventory
+>Raid can either be forced or spawned via the TextStore plugin, if no raid is forced, give a 25% probability for spawn per map (Only 1 raid max per map, so if one is forced don't allow a random one to spawn or allow other player to spawn one)
+>If the summoned raid is a duo or plus and the player is in a /ff2party make the party member be raid with him (if more than number of bosses pick the oldest person who joined the party)
+>Random Raid selected player must be random
+>During raid, disable the 15 minutes timer bleed and replace it with a stand alone version of the wave plugin of s93_blitzkrieg plugin (with customisable number of wave and time per wave in cfg)
+>When raid spawn or after someone summon him with the TextStore menu, block all player from using one for the rest of the map and give a 180 minutes timer cooldown to the player who used it to use another one via the textstore plugin (ignored if random)
+>When raid spawn, the user who used raid must spawn with it on the blue team while all the other players spawn on red team with their selected bosses
+
+>Ultra round applies the same rules but add one new rule, the rule being that a random player is picked and get a boss from the Raid category and spawn on red with it
+
+>Disable passive charge for boss rages. (not sure yet)
+>Yeah, that's more of a "misc" thing but is it possible to add admin menu for raids and ultra access? (Forcing one, select one, reset someone timer etc)
+>Can we just have an actual way of setting up audio files to be server wide or not in bosses cfg.

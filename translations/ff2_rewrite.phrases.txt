@@ -1,0 +1,829 @@
+"Phrases"
+{
+	"Prefix"
+	{
+		"en"		"{olive}[FF2]{default} "
+	}
+	"Available Commands"
+	{
+		"en"		"ff2 - Main Menu\nff2boss - Boss Listing\nff2queue - View Boss Queue\nff2music - Music Settings\nff2voice - Toggle Boss Voicelines\nff2weapons - View Weapon Changes\nff2hud - Toggle Round Stats HUD\nff2modifier - Modifier Listing"
+	}
+	
+	"Boss Spawned As"
+	{
+		"#format"	"{1:N},{2:s},{3:d}"
+		"en"		"{teamcolor}{1} {default}became {olive}{2} {default}with {olive}{3} {default}HP."
+	}
+	"Boss Spawned As Lives"
+	{
+		"#format"	"{1:N},{2:s},{3:d},{4:d}"
+		"en"		"{teamcolor}{1} {default}became {olive}{2} {default}with {olive}{3} (x{4}) {default}HP."
+	}
+	"You Dealt Damage Hud"
+	{
+		"#format"	"{1:d},{2:d},{3:d}"
+		"en"		"You dealt {1} damage, healed {2} health, and assisted in {3} points."
+	}
+	"Top Damage Hud"
+	{
+		"#format"	"{1:s},{2:d},{3:s},{4:d},{5:s},{6:d}"
+		"en"		"1st: {1} - {2}\n2nd: {3} - {4}\n3rd: {5} - {6}"
+	}
+	"Boss Had Health Left"
+	{
+		"#format"	"{1:s},{2:N},{3:d},{4:d}"
+		"en"		"{olive}{1} {default}({teamcolor}{2}{default}) had {olive}{3} {default}/ {olive}{4} {default}HP left."
+	}
+	"Boss Had Health Left Hud"
+	{
+		"#format"	"{1:s},{2:N},{3:d},{4:d}"
+		"en"		"{1} ({2}) had {3} / {4} HP left."
+	}
+	"Team Had Health Left Hud"
+	{
+		"#format"	"{1:t},{2:d},{3:d}"
+		"en"		"{1} had {2} / {3} HP left."
+	}
+	"Team Had Players Left Hud"
+	{
+		"#format"	"{1:t},{2:d},{3:d}"
+		"en"		"{1} had {2} / {3} players alive."
+	}
+	"Team 0"
+	{
+		"en"		"YLW Team"
+	}
+	"Team 1"
+	{
+		"en"		"GRN Team"
+	}
+	"Team 2"
+	{
+		"en"		"RED Team"
+	}
+	"Team 3"
+	{
+		"en"		"BLU Team"
+	}
+	"Point Unlocked"
+	{
+		"en"		"Control Point Unlocked"
+	}
+	"Lost Life"
+	{
+		"#format"	"{1:s}"
+		"en"		"{1} has 1 life left!"
+	}
+	"Lost Lives"
+	{
+		"#format"	"{1:s},{2:d}"
+		"en"		"{1} has {2} lives left!"
+	}
+	"Boss Lives Left"
+	{
+		"#format"	"{1:d},{2:d}"
+		"en"		"Lives: {1} / {2}"
+	}
+	"Boss Rage Charge"
+	{
+		"#format"	"{1:d}"
+		"en"		"RAGE is not ready. {1}%%"
+	}
+	"Boss Rage Ready"
+	{
+		"#format"	"{1:d}"
+		"en"		"RAGE is ready! {1}%%"
+	}
+	"Boss Rage Medic"
+	{
+		"en"		" | Call for Medic"
+	}
+	"Boss Mobility Time"
+	{
+		"#format"	"{1:.1f}"
+		"en"		"Mobility is not ready. {1}s"
+	}
+	"Boss Mobility Charge"
+	{
+		"#format"	"{1:d}"
+		"en"		"Mobility is not ready. {1}%%"
+	}
+	"Boss Jump Time"
+	{
+		"#format"	"{1:.1f}"
+		"en"		"Super Jump is not ready. {1}s"
+	}
+	"Boss Jump Charge"
+	{
+		"#format"	"{1:d}"
+		"en"		"Super Jump is not ready. {1}%%"
+	}
+	"Boss Jump Ready"
+	{
+		"#format"	"{1:d}"
+		"en"		"Super Jump is ready. {1}%%"
+	}
+	"Boss Jump Look"
+	{
+		"en"		" | Look Upwards & Release"
+	}
+	"Boss Tele Time"
+	{
+		"#format"	"{1:.1f}"
+		"en"		"Teleport is not ready. {1}s"
+	}
+	"Boss Tele Charge"
+	{
+		"#format"	"{1:d}"
+		"en"		"Teleport is not ready. {1}%%"
+	}
+	"Boss Tele Ready"
+	{
+		"#format"	"{1:d}"
+		"en"		"Teleport is ready. {1}%%"
+	}
+	"Boss Tele Look"
+	{
+		"en"		" | Look at Target & Release"
+	}
+	"Boss Mobility 0"
+	{
+		"en"		" | Hold Primary Attack"
+	}
+	"Boss Mobility 1"
+	{
+		"en"		" | Hold Jump"
+	}
+	"Boss Mobility 2"
+	{
+		"en"		" | Hold Duck"
+	}
+	"Boss Mobility 3"
+	{
+		"en"		" | Move Forward"
+	}
+	"Boss Mobility 4"
+	{
+		"en"		" | Move Back"
+	}
+	"Boss Mobility 9"
+	{
+		"en"		" | Move Left"
+	}
+	"Boss Mobility 10"
+	{
+		"en"		" | Move Right"
+	}
+	"Boss Mobility 11"
+	{
+		"en"		" | Hold Secondary Attack"
+	}
+	"Boss Mobility 13"
+	{
+		"en"		" | Hold Reload"
+	}
+	"Boss Mobility 25"
+	{
+		"en"		" | Hold Special Attack"
+	}
+	"Current Stats Hud"
+	{
+		"#format"	"{1:d},{2:d},{3:d}"
+		"en"		"Damage: {1} | Healing: {2} | Assisting: {3}"
+	}
+	"Viewing Stats Hud"
+	{
+		"#format"	"{1:N},{2:d},{3:d},{4:d}"
+		"en"		"{1} - Damage: {2} | Healing: {3} | Assisting: {4}"
+	}
+	
+	"Preference Updated"
+	{
+		"en"		"Your preferences and queue points were updated."
+	}
+	"Next Pack Vote"
+	{
+		"en"		"Boss Pack for Freak Fortress 2:\n "
+	}
+	"Next Pack Voted"
+	{
+		"#format"	"{1:s}"
+		"en"		"The next boss pack will be {olive}{1}"
+	}
+	
+	"Command Selection"
+	{
+		"en"		"Boss Listing (/ff2boss)"
+	}
+	"Command Queue"
+	{
+		"en"		"View Boss Queue (/ff2queue)"
+	}
+	"Command Music"
+	{
+		"en"		"Music Settings (/ff2music)"
+	}
+	"Command Voice"
+	{
+		"en"		"Toggle Boss Voicelines (/ff2voice)"
+	}
+	"Command Weapon"
+	{
+		"en"		"View Weapon Changes (/ff2weapons)"
+	}
+	"Command Hud"
+	{
+		"en"		"Toggle Round Stats HUD (/ff2hud)"
+	}
+	"Command Difficulty"
+	{
+		"en"		"Modifier Listing (/ff2modifier)"
+	}
+	
+	"Boss Voices Disabled"
+	{
+		"en"		"Boss voices are now disabled."
+	}
+	"Boss Voices Enabled"
+	{
+		"en"		"Boss voices are now enabled."
+	}
+	
+	"Queue Menu"
+	{
+		"en"		"FF2 Boss Queue\n "
+	}
+	"Reset Queue Points"
+	{
+		"#format"	"{1:d}"
+		"en"		"{1} Queue Points"
+	}
+	"Reset Queue Points Confirm"
+	{
+		"en"		"Reset your Queue Points?\n "
+	}
+	
+	"Damage Hud Disabled"
+	{
+		"en"		"Round stats HUD is now disabled."
+	}
+	"Damage Hud Enabled"
+	{
+		"en"		"Round stats HUD is now enabled."
+	}
+	
+	"Add Points To"
+	{
+		"#format"	"{1:d},{2:t}"
+		"en"		"Gave {1} queue points to {2}."
+	}
+	"Remove Points From"
+	{
+		"#format"	"{1:d},{2:t}"
+		"en"		"Removed {1} queue points from {2}."
+	}
+	
+	"Target must be boss"
+	{
+		"en"		"This command can only be used on Freak Fortress 2 boss players."
+	}
+	"Created Boss On"
+	{
+		"#format"	"{1:t}"
+		"en"		"Toggled being a boss on {1}."
+	}
+	"Set Charge On"
+	{
+		"#format"	"{1:t}"
+		"en"		"Changed charge amount on {1}."
+	}
+	
+	"Boss Override Command"
+	{
+		"en"		"FF2 Boss Override\n "
+	}
+	"No Override"
+	{
+		"en"		"No Override"
+	}
+	"Boss Not Found"
+	{
+		"en"		"Boss not found"
+	}
+	"Boss Overriden"
+	{
+		"#format"	"{1:s}"
+		"en"		"{1} will now be played next round"
+	}
+	"Boss No Access"
+	{
+		"#format"	"{1:s}"
+		"en"		"You don't have permission to select {1}"
+	}
+	"No Boss Overriden"
+	{
+		"en"		"Removed queued boss override"
+	}
+	"No Description"
+	{
+		"en"		"No Description"
+	}
+	
+	"Boss Selection Command"
+	{
+		"en"		"FF2 Boss Listing\n "
+	}
+	"Clear Whitelist"
+	{
+		"en"		"Clear Whitelist"
+	}
+	"Clear Blacklist"
+	{
+		"en"		"Clear Blacklist"
+	}
+	"Clear All"
+	{
+		"en"		"Clear All"
+	}
+	"Disable Playing Boss"
+	{
+		"en"		"Disable Playing Boss"
+	}
+	"Disable Playing Boss All"
+	{
+		"en"		"Disable Playing All Bosses"
+	}
+	"Enable Playing Boss"
+	{
+		"en"		"Enable Playing Boss"
+	}
+	"Enable Playing Boss All"
+	{
+		"en"		"Enable Playing All Bosses"
+	}
+	"Boss No View"
+	{
+		"en"		"You may not have access to this boss or does not exist."
+	}
+	"Charset No View"
+	{
+		"en"		"You may not have access to this pack or does not exist."
+	}
+	"Boss Whitelist"
+	{
+		"#format"	"{1:s}"
+		"en"		"Whitelist {1}"
+	}
+	"Boss Blacklist"
+	{
+		"#format"	"{1:s}"
+		"en"		"Blacklist {1}"
+	}
+	"Boss Party"
+	{
+		"#format"	"{1:s}"
+		"en"		"Create Team for {1}"
+	}
+	"Boss Party Menu"
+	{
+		"#format"	"{1:s}"
+		"en"		"FF2 Boss Party\n {1}\n "
+	}
+	"Boss Party Invited"
+	{
+		"#format"	"{1:N},{2:s}"
+		"en"		"{1} invited you to join their party to play as {2}\n "
+	}
+	"Boss Party Accept"
+	{
+		"en"		"Accept"
+	}
+	"Boss Party Decline"
+	{
+		"en"		"Decline"
+	}
+	"Boss Party Block"
+	{
+		"en"		"Block (Use the TF2 mute menu)"
+	}
+	"Boss Party Leave"
+	{
+		"en"		"Leave Party"
+	}
+	"Boss Party Blank"
+	{
+		"#format"	"{1:s}"
+		"en"		"{1}: ???"
+	}
+	"Boss Party Member"
+	{
+		"#format"	"{1:s},{2:N}"
+		"en"		"{1}: {2}"
+	}
+	"Boss Party Invite"
+	{
+		"#format"	"{1:s}"
+		"en"		"{1}: ??? (Invite)"
+	}
+	"Boss Party Kick"
+	{
+		"#format"	"{1:s},{2:N}"
+		"en"		"{1}: {2} (Kick)"
+	}
+	"Boss Party Pending"
+	{
+		"#format"	"{1:s},{2:N}"
+		"en"		"{1}: {2} (Pending)"
+	}
+	"Party You Kicked"
+	{
+		"#format"	"{1:s}"
+		"en"		"{red}You were kicked from the party as {olive}{1}{red}."
+	}
+	"Party You Left"
+	{
+		"#format"	"{1:s}"
+		"en"		"You have left the party as {olive}{1}{default}."
+	}
+	"Party Member Invited"
+	{
+		"#format"	"{1:N},{2:s}"
+		"en"		"{olive}{1} {red}invited you to their party to play as {olive}{2}{red}. Use {olive}/ff2boss {red}to accept the invite."
+	}
+	"Party Member Joined"
+	{
+		"#format"	"{1:N},{2:s}"
+		"en"		"{olive}{1} {red}joined the party as {olive}{2}{red}."
+	}
+	"Party Member Kicked"
+	{
+		"#format"	"{1:N},{2:s}"
+		"en"		"{olive}{1} {red}was kicked from party as {olive}{2}{red}."
+	}
+	"Party Member Left"
+	{
+		"#format"	"{1:N},{2:s}"
+		"en"		"{olive}{1} {red}left the party as {olive}{2}{red}."
+	}
+	"Party Leader Left"
+	{
+		"#format"	"{1:N},{2:s},{3:N}"
+		"en"		"{olive}{1} {red}left the party as {olive}{2}{red}. {olive}{2} {red}now controls the party."
+	}
+	"Legacy Boss Menu Command"
+	{
+		"en"		"This command will be removed in the near future, use /ff2boss instead."
+	}
+	"Boss Whitelisted"
+	{
+		"#format"	"{1:s}"
+		"en"		"Whitelisted {1}"
+	}
+	"Boss Blacklisted"
+	{
+		"#format"	"{1:s}"
+		"en"		"Blacklisted {1}"
+	}
+	"Boss Blacklist Full"
+	{
+		"#format"	"{1:d}"
+		"en"		"Blacklist is full with {1} bosses."
+	}
+	
+	"Now Playing"
+	{
+		"#format"	"{1:s},{2:s}"
+		"en"		"Now Playing: {blue}{1}{default} - {orange}{2}{default}"
+	}
+	"Unknown Song"
+	{
+		"en"		"Unknown Song"
+	}
+	"Unknown Artist"
+	{
+		"en"		"Unknown Artist"
+	}
+	"Music Disabled"
+	{
+		"en"		"Disabled boss music."
+	}
+	"Music Unknown Arg"
+	{
+		"#format"	"{1:s}"
+		"en"		"Unknown argument '{1}'\nArguments Available: 'on', 'off', 'next', 'shuffle', 'list', '#<song id>'"
+	}
+	"Music Menu"
+	{
+		"en"		"FF2 Music Settings\n "
+	}
+	"Music Boss Pack"
+	{
+		"#format"	"{1:s}"
+		"en"		"Playlist: {1}\n "
+	}
+	"Music Enable"
+	{
+		"en"		"Enable Boss Music"
+	}
+	"Music Disable"
+	{
+		"en"		"Disable Boss Music"
+	}
+	"Music Random"
+	{
+		"en"		"Randomize Boss Music"
+	}
+	"Music Skip"
+	{
+		"en"		"Play Next Song"
+	}
+	"Music Shuffle"
+	{
+		"en"		"Play Random Song"
+	}
+	"Music List"
+	{
+		"en"		"View Playlist"
+	}
+	
+	"Difficulty Menu"
+	{
+		"en"		"FF2 Boss Modifiers\n "
+	}
+	"Disable Special Rounds"
+	{
+		"en"		"Disable Random Modifiers"
+	}
+	"Enable Special Rounds"
+	{
+		"en"		"Enable Random Modifiers"
+	}
+	"Disabled Special Rounds"
+	{
+		"en"		"Random modifiers are now disabled."
+	}
+	"Enabled Special Rounds"
+	{
+		"en"		"Random modifiers are now enabled."
+	}
+	"Unknown Difficulty"
+	{
+		"en"		"This difficulty does not exist."
+	}
+	
+	"Boss Solo Rage"
+	{
+		"#format"	"{1:s}"
+		"en"		"{teamcolor}{1}{default} used solo rage!"
+	}
+	"Boss Solo Rage Success"
+	{
+		"en"		"{blue}It's super effective!"
+	}
+	"Boss Solo Rage Failure"
+	{
+		"en"		"{red}It's not very effective..."
+	}
+	
+	"Rage Needs Summon"
+	{
+		"en"		"Needs Summonable Player"
+	}
+	"Rage Needs Partner"
+	{
+		"en"		"Needs Ally Boss"
+	}
+	"Rage Needs One Life"
+	{
+		"en"		"Last Life"
+	}
+	"Rage Needs Ground"
+	{
+		"en"		"Ground"
+	}
+	"Boss HP"
+	{
+		"#format"	"{1:d},{2:d}"
+		"en"		"{1} / {2} HP"
+	}
+	"Boss Lives"
+	{
+		"#format"	"{1:d},{2:d}"
+		"en"		"{1} / {2} Lives"
+	}
+	"Ability Delay"
+	{
+		"#format"	"{1:.1f}"
+		"en"		"{1}s"
+	}
+	"Boss Rage"
+	{
+		"#format"	"{1:d}"
+		"en"		"{1}%% RAGE"
+	}
+	"Boss Wall Jump"
+	{
+		"en"		"Wall Jumps - Jump while nearby a solid wall"
+	}
+	"Boss Weapon Pickups"
+	{
+		"en"		"Weapon Pickups - Pickup non-melee weapons to use them in combat"
+	}
+	"Button E"
+	{
+		"en"		"Call for Medic"
+	}
+	"Button 11"
+	{
+		"en"		"Secondary Attack"
+	}
+	"Button 13"
+	{
+		"en"		"Reload"
+	}
+	"Button 25"
+	{
+		"en"		"Special Attack"
+	}
+	"Short E"
+	{
+		"en"		"E"
+	}
+	"Short 11"
+	{
+		"en"		"M2"
+	}
+	"Short 13"
+	{
+		"en"		"R"
+	}
+	"Short 25"
+	{
+		"en"		"M3"
+	}
+	
+	"Weapon Menu"
+	{
+		"en"		"FF2 Weapon Changes\n "
+	}
+	"Disable Weapon Changes"
+	{
+		"en"		"Disable Pop-Up Menu"
+	}
+	"Enable Weapon Changes"
+	{
+		"en"		"Enable Pop-Up Menu"
+	}
+	"Weapon Stripped"
+	{
+		"en"		"Stripped Existing Attributes"
+	}
+	"Primary"
+	{
+		"en"		"Primary"
+	}
+	"Secondary"
+	{
+		"en"		"Secondary"
+	}
+	"Melee"
+	{
+		"en"		"Melee"
+	}
+	"PDA"
+	{
+		"en"		"PDA"
+	}
+	"Utility"
+	{
+		"en"		"Utility"
+	}
+	"Building"
+	{
+		"en"		"Building"
+	}
+	"Action"
+	{
+		"en"		"Action"
+	}
+	"custom DISPLAY ONLY"
+	{
+		"#format"	"{1:s},{2:s},{3:s},{4:s}"
+		"en"		"{4}"
+	}
+	"damage vs bosses"
+	{
+		"#format"	"{1:s},{2:s},{3:s},{4:s}"
+		"en"		"+{1}%% damage vs bosses"
+	}
+	"primary damage vs bosses"
+	{
+		"#format"	"{1:s},{2:s},{3:s},{4:s}"
+		"en"		"+{1}%% primary weapon damage vs bosses"
+	}
+	"secondary damage vs bosses"
+	{
+		"#format"	"{1:s},{2:s},{3:s},{4:s}"
+		"en"		"+{1}%% secondary weapon damage vs bosses"
+	}
+	"melee damage vs bosses"
+	{
+		"#format"	"{1:s},{2:s},{3:s},{4:s}"
+		"en"		"+{1}%% melee weapon damage vs bosses"
+	}
+	"mid-air damage vs bosses"
+	{
+		"#format"	"{1:s},{2:s},{3:s},{4:s}"
+		"en"		"+{1}%% damage vs bosses while blast jumping"
+	}
+	"mod crit type glow"
+	{
+		"#format"	"{1:s},{2:s},{3:s},{4:s}"
+		"en"		"100%% critical hit"
+	}
+	"mod crit type on bosses"
+	{
+		"#format"	"{1:s},{2:s},{3:s},{4:s}"
+		"en"		"100%% critical hit vs bosses"
+	}
+	"charge outlines bosses"
+	{
+		"#format"	"{1:s},{2:s},{3:s},{4:s}"
+		"en"		"Damage outlines bosses based on charge time"
+	}
+	"primary ammo from damage"
+	{
+		"#format"	"{1:s},{2:s},{3:s},{4:s}"
+		"en"		"Gains ammo for every {3} damage dealt to a boss"
+	}
+	"secondary ammo from damage"
+	{
+		"#format"	"{1:s},{2:s},{3:s},{4:s}"
+		"en"		"Gains ammo for every {3} damage dealt to a boss"
+	}
+	"multi boss rage"
+	{
+		"#format"	"{1:s},{2:s},{3:s},{4:s}"
+		"en"		"Decerases rage gained by bosses by {2}%%"
+	}
+	"backstab damage percent"
+	{
+		"#format"	"{1:s},{2:s},{3:s},{4:s}"
+		"en"		"Backstabs deal {2}%% of a boss's max health"
+	}
+	"mod airblast stale"
+	{
+		"#format"	"{1:s},{2:s},{3:s},{4:s}"
+		"en"		"Successive airblasts on a boss increases airblast cooldown"
+	}
+	"nailgun custom slow"
+	{
+		"#format"	"{1:s},{2:s},{3:s},{4:s}"
+		"en"		"On Hit: Causes a stackable slowness on target"
+	}
+	"milk limit DISPLAY ONLY"
+	{
+		"#format"	"{1:s},{2:s},{3:s},{4:s}"
+		"en"		"Milk effect only lasts {4} seconds when applied to a boss"
+	}
+	"hit stale DISPLAY ONLY"
+	{
+		"#format"	"{1:s},{2:s},{3:s},{4:s}"
+		"en"		"Successive hits on a boss increases reload time"
+	}
+	"sentry death DISPLAY ONLY"
+	{
+		"#format"	"{1:s},{2:s},{3:s},{4:s}"
+		"en"		"On Death: Sentry explodes spectacularly"
+	}
+	"jarate limit DISPLAY ONLY"
+	{
+		"#format"	"{1:s},{2:s},{3:s},{4:s}"
+		"en"		"Jarate effect is limited to {4} damage when applied to a boss"
+	}
+	"boost limit DISPLAY ONLY"
+	{
+		"#format"	"{1:s},{2:s},{3:s},{4:s}"
+		"en"		"Successive hits on a boss decreases boost over time"
+	}
+	"teleport no spawn DISPLAY ONLY"
+	{
+		"#format"	"{1:s},{2:s},{3:s},{4:s}"
+		"en"		"Unable to teleport to spawn"
+	}
+	"vaccinator DISPLAY ONLY"
+	{
+		"#format"	"{1:s},{2:s},{3:s},{4:s}"
+		"en"		"Resistances effect boss melee hits"
+	}
+	"cloak on hit DISPLAY ONLY"
+	{
+		"#format"	"{1:s},{2:s},{3:s},{4:s}"
+		"en"		"Disables cloaking for {4} seconds when hitting a boss"
+	}
+	"cloak and dagger no DISPLAY ONLY"
+	{
+		"#format"	"{1:s},{2:s},{3:s},{4:s}"
+		"en"		"Cloak Type: Normal."
+	}
+}
