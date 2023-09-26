@@ -4,12 +4,13 @@ Discord: Kolaxie#4295
 Freak Fortress 2 Plugin Edit (Latest Fork of FF2 Unofficial by BatFox)
 
 >Change gamemode name to "Boss vs Boss Gemara"
->Play client boss intro, theme and outro (play ennemy outro if his team dies)
 >Remove Halloween TF2 health bar on the screen without removing the BvB health system
 >Add a mannpower logo above player head (with no effect) to show their team
->Disable medkit and ammopack spawn on the whole map
 >Add a custom invisible timer of 15 mins before making all bosses lose 100hp per seconds (Show timer at two minutes left before the hp lose start)
 >Add a new command (/ff2party) this command open a SM menu with a bunch of room, if 2 player join the same room, they will be in the same team every round. (Raid and Ultra round included)
+>Close sourcemod menu shown on screen on death (ffbat_menu_abilities)
+
+---------
 
 Additional Plugin for BvB: Raid and Ultra Round.
 
@@ -25,6 +26,13 @@ Additional Plugin for BvB: Raid and Ultra Round.
 
 >Ultra round applies the same rules but add one new rule, the rule being that a random player is picked and get a boss from the Raid category and spawn on red with it
 
->Disable passive charge for boss rages. (not sure yet)
 >Yeah, that's more of a "misc" thing but is it possible to add admin menu for raids and ultra access? (Forcing one, select one, reset someone timer etc)
 >Can we just have an actual way of setting up audio files to be server wide or not in bosses cfg.
+
+----------
+
+Already Existing in Rewrite
+
+>//Play client boss intro, theme and outro (play ennemy outro if his team dies// (Already exist in rewrite, but has a bug during first round where it starts during setup)
+>//Disable medkit and ammopack spawn on the whole map//  (Already used in rewrite)
+>//Disable passive charge for boss rages.// (Already used in rewrite)
