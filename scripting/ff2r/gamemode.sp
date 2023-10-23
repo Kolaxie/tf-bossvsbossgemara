@@ -922,16 +922,16 @@ void Gamemode_UpdateHUD(int team, bool healing = false, bool nobar = false)
 			}
 			else if(count < 3)
 			{
-				int entity = MaxClients + 1;
-				while((entity = FindEntityByClassname(entity, "eyeball_boss")) != -1)
-				{
-					if(GetEntProp(entity, Prop_Send, "m_iTeamNum") > TFTeam_Blue)
-						break;
-				}
+				// int entity = MaxClients + 1;
+				// while((entity = FindEntityByClassname(entity, "eyeball_boss")) != -1)
+				// {
+				// 	if(GetEntProp(entity, Prop_Send, "m_iTeamNum") > TFTeam_Blue)
+				// 		break;
+				// }
 				
-				if(entity == -1)
-				{
-					entity = FindEntityByClassname(-1, "monster_resource");
+				//if(entity == -1)
+				//{
+					//entity = FindEntityByClassname(-1, "monster_resource");
 					if(!maxcombined)
 					{
 						//if(entity != -1)
@@ -939,11 +939,11 @@ void Gamemode_UpdateHUD(int team, bool healing = false, bool nobar = false)
 					}
 					else
 					{
-						if(entity == -1)
-						{
-							entity = CreateEntityByName("monster_resource");
-							DispatchSpawn(entity);
-						}
+						//if(entity == -1)
+						//{
+						//	entity = CreateEntityByName("monster_resource");
+						//	DispatchSpawn(entity);
+						//}
 						
 						float gameTime = GetGameTime();
 						if(healing)
@@ -951,12 +951,12 @@ void Gamemode_UpdateHUD(int team, bool healing = false, bool nobar = false)
 						
 						if(HealingFor > gameTime)
 						{
-							SetEntProp(entity, Prop_Send, "m_iBossState", true);
+							//SetEntProp(entity, Prop_Send, "m_iBossState", true);
 							refresh = HealingFor - gameTime;
 						}
 						else
 						{
-							SetEntProp(entity, Prop_Send, "m_iBossState", false);
+							//SetEntProp(entity, Prop_Send, "m_iBossState", false);
 						}
 						
 						int amount;
@@ -971,16 +971,17 @@ void Gamemode_UpdateHUD(int team, bool healing = false, bool nobar = false)
 								amount = 1;
 						}
 						
-						SetEntProp(entity, Prop_Send, "m_iBossHealthPercentageByte", amount, 2);
+						//SetEntProp(entity, Prop_Send, "m_iBossHealthPercentageByte", amount, 2);
 					}
-				}
+				//}
 			}
 			else if(lastCount < 3)
 			{
-			//	int entity = FindEntityByClassname(-1, "monster_resource");
-			//	if(entity != -1)
-			//		RemoveEntity(entity);
 			}
+
+			int entity = FindEntityByClassname(-1, "monster_resource");
+			if(entity != -1)
+				RemoveEntity(entity);
 			
 			if(HudTimer[team])
 			{

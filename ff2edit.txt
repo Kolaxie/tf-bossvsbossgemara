@@ -5,7 +5,6 @@ Freak Fortress 2 Plugin Edit (Latest Fork of FF2 Unofficial by BatFox)
 
 ---------
 
->Remove Halloween TF2 health bar on the screen without removing the BvB health system
 >Add a mannpower logo above player head (with no effect) to show their team
 >Add a custom invisible timer of 15 mins before making all bosses lose 100hp per seconds (Show timer at two minutes left before the hp lose start)
 >Add a new command (/ff2party) this command open a SM menu with a bunch of room, if 2 player join the same room, they will be in the same team every round. (Raid and Ultra round included)
@@ -43,3 +42,4 @@ Already Existing in Rewrite
 Done
 
 >//Change gamemode name to "Boss vs Boss Gemara"
+>//Remove Halloween TF2 health bar on the screen without removing the BvB health system
