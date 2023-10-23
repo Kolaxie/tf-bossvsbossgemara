@@ -3,7 +3,8 @@ Discord: Kolaxie#4295
 
 Freak Fortress 2 Plugin Edit (Latest Fork of FF2 Unofficial by BatFox)
 
->Change gamemode name to "Boss vs Boss Gemara"
+---------
+
 >Remove Halloween TF2 health bar on the screen without removing the BvB health system
 >Add a mannpower logo above player head (with no effect) to show their team
 >Add a custom invisible timer of 15 mins before making all bosses lose 100hp per seconds (Show timer at two minutes left before the hp lose start)
@@ -36,3 +37,9 @@ Already Existing in Rewrite
 >//Play client boss intro, theme and outro (play ennemy outro if his team dies// (Already exist in rewrite, but has a bug during first round where it starts during setup)
 >//Disable medkit and ammopack spawn on the whole map//  (Already used in rewrite)
 >//Disable passive charge for boss rages.// (Already used in rewrite)
+
+----------
+
+Done
+
+>//Change gamemode name to "Boss vs Boss Gemara"
