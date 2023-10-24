@@ -218,6 +218,10 @@ public void Events_PlayerSpawn(Event event, const char[] name, bool dontBroadcas
 		SetEntProp(client, Prop_Send, "m_nModelIndexOverrides", 0, _, 0);
 		SetEntProp(client, Prop_Send, "m_nModelIndexOverrides", 0, _, 3);
 	}
+
+	if (client > 0 && !Client(client).IsBoss) {
+		CreateIcon(client, ICON_MATERIAL_VMT, Cvar[IconsOffset].FloatValue);
+	}
 	
 	Events_CheckAlivePlayers();
 }
@@ -618,6 +622,8 @@ public void Events_PlayerDeath(Event event, const char[] name, bool dontBroadcas
 				
 				Client(victim).ResetByDeath();
 			}
+
+			KillIcon(victim);
 		}
 	}
 }

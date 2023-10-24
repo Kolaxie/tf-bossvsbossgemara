@@ -41,6 +41,9 @@
 #define TFTeam_Blue			3
 #define TFTeam_MAX			4
 
+#define ICON_MATERIAL_VTF "effects/powerup_agility_icon.vtf"
+#define ICON_MATERIAL_VMT "effects/powerup_agility_icon.vmt"
+
 enum TFStatType_t
 {
 	TFSTAT_UNDEFINED = 0,
@@ -176,6 +179,8 @@ enum
 
 	SubpluginFolder,
 	FileCheck,
+
+	IconsOffset,
 	
 	SoundType,
 	BossTriple,
@@ -220,6 +225,8 @@ bool PluginsEnabled;
 Handle PlayerHud;
 Handle ThisPlugin;
 
+int g_Icons[MAXPLAYERS + 1];
+
 #include "ff2r/client.sp"
 #include "ff2r/stocks.sp"
 
@@ -237,6 +244,7 @@ Handle ThisPlugin;
 #include "ff2r/forwards_old.sp"
 #include "ff2r/gamemode.sp"
 #include "ff2r/goomba.sp"
+#include "ff2r/icons.sp"
 #include "ff2r/menu.sp"
 #include "ff2r/music.sp"
 #include "ff2r/natives.sp"
@@ -326,6 +334,7 @@ public void OnMapStart()
 	Configs_MapStart();
 	DHook_MapStart();
 	Gamemode_MapStart();
+	Icons_MapStart();
 }
 
 public void OnConfigsExecuted()
@@ -399,6 +408,7 @@ public void OnClientDisconnect(int client)
 	Database_ClientDisconnect(client);
 	Events_CheckAlivePlayers(client);
 	Preference_ClientDisconnect(client);
+	Icons_ClientDisconnect(client);
 	
 	Client(client).ResetByAll();
 }
