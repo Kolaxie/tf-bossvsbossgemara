@@ -223,9 +223,16 @@ bool Enabled;
 int RoundStatus;
 bool PluginsEnabled;
 Handle PlayerHud;
+Handle TimerHud;
 Handle ThisPlugin;
 
 int g_Icons[MAXPLAYERS + 1];
+
+Handle g_KillTimer;
+int g_KillTime;
+
+#define NO_ROOM -1
+int g_Room[MAXPLAYERS + 1] = {NO_ROOM, ...};
 
 #include "ff2r/client.sp"
 #include "ff2r/stocks.sp"
@@ -293,6 +300,7 @@ public void OnPluginStart()
 		SetFailState("Translation file \"ff2_rewrite.phrases\" is outdated");
 	
 	PlayerHud = CreateHudSynchronizer();
+	TimerHud = CreateHudSynchronizer();
 	
 	Attributes_PluginStart();
 	Bosses_PluginStart();
@@ -411,6 +419,8 @@ public void OnClientDisconnect(int client)
 	Icons_ClientDisconnect(client);
 	
 	Client(client).ResetByAll();
+
+	g_Room[client] = NO_ROOM;
 }
 
 public Action OnPlayerRunCmd(int client, int &buttons)

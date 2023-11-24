@@ -235,6 +235,10 @@
 	{
 		"en"		"Toggle Round Stats HUD (/ff2hud)"
 	}
+	"Command Party"
+	{
+		"en"		"Party Rooms (/ff2party)"
+	}
 	"Command Difficulty"
 	{
 		"en"		"Modifier Listing (/ff2modifier)"
@@ -825,5 +829,19 @@
 	{
 		"#format"	"{1:s},{2:s},{3:s},{4:s}"
 		"en"		"Cloak Type: Normal."
+	}
+	"Party Menu Title"
+	{
+		"en"	"Choose a party room:"
+	}
+	"Party Menu Item"
+	{
+		"#format"	"{1:i}"
+		"en"	"Room: {1}"
+	}
+	"Room Updated"
+	{
+		"#format"	"{1:i}"
+		"en"	"Your room has been updated to: {1}"
 	}
 }

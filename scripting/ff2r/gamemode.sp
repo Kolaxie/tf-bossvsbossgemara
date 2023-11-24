@@ -134,6 +134,7 @@ void Gamemode_MapStart()
 void Gamemode_MapEnd()
 {
 	delete BackupTimer;
+	g_KillTimer = null;
 }
 
 void Gamemode_RoundSetup()
@@ -515,6 +516,12 @@ void Gamemode_RoundStart()
 	}
 	
 	Music_RoundStart();
+
+	if(g_KillTimer)
+		KillTimer(g_KillTimer);
+
+	g_KillTime = 15 * 60;
+	g_KillTimer = CreateTimer(1.0, Gamemode_KillTimer, _, TIMER_REPEAT | TIMER_FLAG_NO_MAPCHANGE);
 }
 
 void Gamemode_CheckPointUnlock(int alive, bool notice)
@@ -781,6 +788,15 @@ void Gamemode_RoundEnd(int winteam)
 			{
 				Client(clients[i]).Queue += points[clients[i]];
 			}
+		}
+	}
+
+	if(g_KillTimer)
+		KillTimer(g_KillTimer);
+
+	for (int i = 1; i <= MaxClients; i++) {
+		if (IsClientInGame(i) && !IsFakeClient(i)) {
+			ClearSyncHud(i, TimerHud);
 		}
 	}
 }
@@ -1205,4 +1221,38 @@ public Action Gamemode_DisguiseTimer(Handle timer, int userid)
 		return Plugin_Continue;
 	}
 	return Plugin_Stop;
+}
+
+public Action Gamemode_KillTimer(Handle timer) {
+	if (!Enabled || RoundStatus != 1) {
+		return Plugin_Continue;
+	}
+
+	if (g_KillTime <= 120) {
+		for (int i = 1; i <= MaxClients; i++) {
+			if (IsClientInGame(i) && IsPlayerAlive(i) && !IsFakeClient(i)) {
+				SetHudTextParamsEx(-1.0, 0.2, 1.0, {255, 255, 255, 255});
+				ShowSyncHudText(i, TimerHud, "Kill Timer - %i", g_KillTime);
+			}
+		}
+	}
+
+	if (g_KillTime > 0) {
+		g_KillTime--;
+		return Plugin_Continue;
+	}
+
+	int health;
+	for (int i = 1; i <= MaxClients; i++) {
+		if (!IsClientInGame(i) || !IsPlayerAlive(i)) {
+			continue;
+		}
+		
+		if (Client(i).IsBoss || Client(i).Minion) {
+			health = GetClientHealth(i);
+			SetEntityHealth(i, (health - 100));
+		}
+	}
+
+	return Plugin_Continue;
 }

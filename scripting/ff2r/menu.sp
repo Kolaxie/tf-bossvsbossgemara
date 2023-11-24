@@ -23,6 +23,8 @@ void Menu_PluginStart()
 	RegFreakCmd("next", Menu_QueueMenuCmd, "Boss vs Boss Gemara Queue Menu", FCVAR_HIDDEN);
 	
 	RegFreakCmd("hud", Menu_HudToggle, "Boss vs Boss Gemara HUD Preference");
+
+	RegFreakCmd("party", Menu_Party, "Boss vs Boss Gemara HUD Preference");
 	
 	RegAdminCmd("ff2_addpoints", Menu_AddPointsCmd, ADMFLAG_CHEATS, "Add Queue Points to a Player");
 }
@@ -119,6 +121,9 @@ void Menu_MainMenu(int client)
 	FormatEx(buffer, sizeof(buffer), "%t", "Command Hud");
 	menu.AddItem(NULL_STRING, buffer);
 	
+	FormatEx(buffer, sizeof(buffer), "%t", "Command Party");
+	menu.AddItem(NULL_STRING, buffer);
+	
 	if(Preference_HasDifficulties())
 	{
 		FormatEx(buffer, sizeof(buffer), "%t", "Command Difficulty");
@@ -170,6 +175,10 @@ public int Menu_MainMenuH(Menu menu, MenuAction action, int client, int choice)
 				case 6:
 				{
 					Preference_DifficultyMenu(client);
+				}
+				case 7:
+				{
+					Menu_Party(client, 0);
 				}
 			}
 		}
@@ -511,4 +520,45 @@ static void AddQueuePoints(int client, int points, int[] target, int matches, co
 	{
 		FShowActivity(client, "%t", "Add Points To", points, "_s", name);
 	}
+}
+
+public Action Menu_Party(int client, int args) {
+	Menu_PartyMenu(client);
+	return Plugin_Handled;
+}
+
+void Menu_PartyMenu(int client) {
+	Menu menu = new Menu(MenuHandler_Party);
+	menu.SetTitle("%T", "Party Menu Title", client);
+
+	char sID[16]; char sDisplay[64];
+	for (int i = 0; i < 6; i++) {
+		IntToString(i, sID, sizeof(sID));
+		FormatEx(sDisplay, sizeof(sDisplay), "%T", "Party Menu Item", client, (i + 1));
+		menu.AddItem(sID, sDisplay, (g_Room[client] == i) ? ITEMDRAW_DISABLED : ITEMDRAW_DEFAULT);
+	}
+
+	menu.Display(client, MENU_TIME_FOREVER);
+}
+
+public int MenuHandler_Party(Menu menu, MenuAction action, int param1, int param2) {
+	switch (action) {
+		case MenuAction_Select: {
+			char sID[16];
+			menu.GetItem(param2, sID, sizeof(sID));
+
+			int room = StringToInt(sID);
+
+			g_Room[param1] = room;
+			FPrintToChat(param1, "%t", "Room Updated", room);
+
+			Menu_PartyMenu(param1);
+		}
+		
+		case MenuAction_End: {
+			delete menu;
+		}
+	}
+	
+	return 0;
 }
