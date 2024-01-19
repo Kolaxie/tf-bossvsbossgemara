@@ -28,6 +28,16 @@ Additional Plugin for BvB: Raid and Ultra Round.
 
 ----------
 
+Additional Plugin for BvB: (Not a priority) 4 Team special rounds
+
+I paid for that a while back and forgot about it eventually but remembered it recently | The message date is 13 november 2022
+
+>The idea is simple, users are splitted into 4 teams (red, blue, yellow, green)
+>Players could either spawn at random spot on the map on round start OR all spawn in the same team and get splitted into the 4 teams after a few seconds after round start
+>The round type could be triggered via admin commands (something like /4team to open the menu to handle it)
+
+-----------
+
 Already Existing in Rewrite
 
 >//Play client boss intro, theme and outro (play ennemy outro if his team dies// (Already exist in rewrite, but has a bug during first round where it starts during setup)
