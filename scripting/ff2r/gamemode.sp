@@ -139,6 +139,9 @@ void Gamemode_MapEnd()
 
 void Gamemode_RoundSetup()
 {
+	Call_StartForward(g_Forward_OnRoundSetup);
+	Call_Finish();
+
 	HealingFor = 0.0;
 	RoundStatus = 0;
 	WinnerOverride = -1;
@@ -176,7 +179,56 @@ void Gamemode_RoundSetup()
 			CreateTimer(preround - 0.1, Gamemode_SetControlPoint, _, TIMER_FLAG_NO_MAPCHANGE);
 			
 			int bosses = Cvar[BossVsBoss].IntValue;
-			if(bosses > 0)	// Boss vs Boss
+			if (BVBRounds_IsSpecialRound()) {
+				int total;
+				int[] clients = new int[MaxClients];
+				for(int client = 1; client <= MaxClients; client++)
+				{
+					if(IsClientInGame(client) && GetClientTeam(client) > TFTeam_Spectator)
+						clients[total++] = client;
+				}
+					
+				if(total)
+				{
+					SortIntegers(clients, total, Sort_Random);
+
+					int client = BVBRounds_GetClient();
+					int boss = BVBRounds_GetPickedBoss();
+
+					bool ultra = BVBRounds_IsUltraRound();
+					int ultraclient = BVBRounds_GetUltraClient();
+					int ultraboss = BVBRounds_GetUltraBoss();
+
+					bool raid;
+
+					for(int i; i < total; i++)
+					{
+						if (ultra) {
+							if (i == ultraclient) {
+								ChangeClientTeam(clients[i], TFTeam_Blue);
+								Bosses_CreateFromSpecial(clients[i], ultraboss, TFTeam_Blue);
+							} else {
+								if (!raid) {
+									raid = true;
+									ChangeClientTeam(clients[i], TFTeam_Red);
+									Bosses_CreateFromSpecial(clients[i], boss, TFTeam_Red);
+								} else {
+									ChangeClientTeam(clients[i], TFTeam_Red);
+									Bosses_CreateFromSpecial(clients[i], Preference_PickBoss(clients[i], TFTeam_Red), TFTeam_Red);
+								}
+							}
+						} else {
+							if (i == client) {
+								ChangeClientTeam(clients[i], TFTeam_Blue);
+								Bosses_CreateFromSpecial(clients[i], boss, TFTeam_Blue);
+							} else {
+								ChangeClientTeam(clients[i], TFTeam_Red);
+								Bosses_CreateFromSpecial(clients[i], Preference_PickBoss(clients[i], TFTeam_Red), TFTeam_Red);
+							}
+						}
+					}
+				}
+			} else if(bosses > 0)	// Boss vs Boss
 			{
 				int reds;
 				int[] red = new int[MaxClients];

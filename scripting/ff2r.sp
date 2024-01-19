@@ -17,6 +17,7 @@
 #include <dhooks>
 #include <tf2items>
 #include <tf2attributes>
+#include <bvb-rounds>
 #undef REQUIRE_EXTENSIONS
 #undef REQUIRE_PLUGIN
 
@@ -234,6 +235,8 @@ int g_KillTime;
 #define NO_ROOM -1
 int g_Room[MAXPLAYERS + 1] = {NO_ROOM, ...};
 
+GlobalForward g_Forward_OnRoundSetup;
+
 #include "ff2r/client.sp"
 #include "ff2r/stocks.sp"
 
@@ -288,6 +291,9 @@ public APLRes AskPluginLoad2(Handle myself, bool late, char[] error, int err_max
 	TF2U_PluginLoad();
 	TFED_PluginLoad();
 	Weapons_PluginLoad();
+
+	g_Forward_OnRoundSetup = new GlobalForward("FF2R_OnRoundSetup", ET_Ignore);
+
 	return APLRes_Success;
 }
 
