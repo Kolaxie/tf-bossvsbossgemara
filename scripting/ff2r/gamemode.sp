@@ -179,7 +179,7 @@ void Gamemode_RoundSetup()
 			CreateTimer(preround - 0.1, Gamemode_SetControlPoint, _, TIMER_FLAG_NO_MAPCHANGE);
 			
 			int bosses = Cvar[BossVsBoss].IntValue;
-			if (BVBRounds_IsSpecialRound()) {
+			if (g_BvBRounds && BVBRounds_IsSpecialRound()) {
 				int total;
 				int[] clients = new int[MaxClients];
 				for(int client = 1; client <= MaxClients; client++)
@@ -195,9 +195,38 @@ void Gamemode_RoundSetup()
 					int client = BVBRounds_GetClient();
 					int boss = BVBRounds_GetPickedBoss();
 
+					if (client < 1) {
+						LogError("Error while starting raid round: client invalid %d", client);
+						return;
+					}
+
+					if (boss < 0) {
+						LogError("Error while starting raid round: boss invalid %d", boss);
+						return;
+					}
+
+					//PrintToChatAll("Client: %d", client);
+					//PrintToChatAll("Boss: %d", boss);
+
 					bool ultra = BVBRounds_IsUltraRound();
 					int ultraclient = BVBRounds_GetUltraClient();
 					int ultraboss = BVBRounds_GetUltraBoss();
+
+					if (ultra) {
+						if (ultraclient < 1) {
+							LogError("Error while starting ultra raid round: client invalid %d", ultraclient);
+							return;
+						}
+
+						if (ultraboss < 0) {
+							LogError("Error while starting ultra raid round: boss invalid %d", ultraboss);
+							return;
+						}
+					}
+
+					//PrintToChatAll("Ultra: %d", ultra);
+					//PrintToChatAll("Ultra Client: %d", ultraclient);
+					//PrintToChatAll("Ultra Boss: %d", ultraboss);
 
 					bool raid;
 

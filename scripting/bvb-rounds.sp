@@ -15,6 +15,7 @@ ConVar convar_Chance;
 ConVar convar_Chance_Ultra;
 ConVar convar_Max;
 ConVar convar_Cooldown;
+ConVar convar_RestartRound;
 
 Database g_Database;
 
@@ -106,14 +107,21 @@ public void OnPluginStart() {
 	convar_Chance_Ultra = CreateConVar("sm_bvb_rounds_chance_ultra", "0.25", "What's the chance of a special round being an ultra round?\n(0.0 = 0%, 1.0 = 100%, 0.50 = 50%)", FCVAR_NOTIFY, true, 0.0, true, 1.0);
 	convar_Max = CreateConVar("sm_bvb_rounds_max", "1", "What's the maximum amount of rounds available per map for a special round to occur?", FCVAR_NOTIFY, true, 0.0);
 	convar_Cooldown = CreateConVar("sm_bvb_rounds_cooldown", "10800", "What's the cooldown a player should have for manually starting a round in seconds?\n(60 seconds = 1 minute)", FCVAR_NOTIFY, true, 0.0);
+	convar_RestartRound = CreateConVar("sm_bvb_rounds_cooldown", "3", "Should the round restart if a raid or ultra is forced?\n(0 = disabled)", FCVAR_NOTIFY, true, 0.0);
 	//AutoExecConfig();
 
 	g_Data.Init();
 
 	HookEvent("teamplay_round_win", Event_OnRoundEnd);
 
+	RegAdminCmd("sm_raid", AdminCmd_RaidRound, ADMFLAG_GENERIC, "Starts a raid round.");
 	RegAdminCmd("sm_raidround", AdminCmd_RaidRound, ADMFLAG_GENERIC, "Starts a raid round.");
+	RegAdminCmd("sm_startraid", AdminCmd_RaidRound, ADMFLAG_GENERIC, "Starts a raid round.");
+	RegAdminCmd("sm_startraidround", AdminCmd_RaidRound, ADMFLAG_GENERIC, "Starts a raid round.");
+	RegAdminCmd("sm_ultra", AdminCmd_UltraRound, ADMFLAG_GENERIC, "Starts an ultra round.");
 	RegAdminCmd("sm_ultraround", AdminCmd_UltraRound, ADMFLAG_GENERIC, "Starts an ultra round.");
+	RegAdminCmd("sm_startultra", AdminCmd_UltraRound, ADMFLAG_GENERIC, "Starts an ultra round.");
+	RegAdminCmd("sm_startultraround", AdminCmd_UltraRound, ADMFLAG_GENERIC, "Starts an ultra round.");
 }
 
 public void OnSQLConnect(Database db, const char[] error, any data) {
@@ -488,20 +496,44 @@ public void Event_OnRoundEnd(Event event, const char[] name, bool dontBroadcast)
 }
 
 public Action AdminCmd_RaidRound(int client, int args) {
+	if (g_Data.nextround) {
+		PrintToChat(client, "A raid round is already queued up.");
+		return Plugin_Handled;
+	}
+
 	g_Data.nextround = true;
 	g_Data.nextroundclient = GetRandomPlayer()	;
 	g_Data.nextroundboss = GetRandomBoss(false);
-	PrintToChatAll("%N is starting up a raid round, new round starting in 1 second...", client);
-	ServerCommand("mp_restartgame 1");
+	
+	int restart = convar_RestartRound.IntValue;
+	if (restart > 0) {
+		PrintToChatAll("%N is starting up a raid round, new round starting in %i second...", client, restart);
+		ServerCommand("mp_restartround %i", restart);
+	} else {
+		PrintToChatAll("%N is starting up a raid round for next round.", client);
+	}
+
 	return Plugin_Handled;
 }
 
 public Action AdminCmd_UltraRound(int client, int args) {
+	if (g_Data.ultra) {
+		PrintToChat(client, "An ultra round is already queued up.");
+		return Plugin_Handled;
+	}
+
 	g_Data.nextround = true;
 	g_Data.nextroundclient = GetRandomPlayer()	;
 	g_Data.nextroundboss = GetRandomBoss(false);
 	g_Data.forceultra = true;
-	PrintToChatAll("%N is starting up an ultra round, new round starting in 1 second...", client);
-	ServerCommand("mp_restartgame 1");
+
+	int restart = convar_RestartRound.IntValue;
+	if (restart > 0) {
+		PrintToChatAll("%N is starting up an ultra round, new round starting in %i second...", client, restart);
+		ServerCommand("mp_restartround %i", restart);
+	} else {
+		PrintToChatAll("%N is starting up an ultra round for next round.", client);
+	}
+
 	return Plugin_Handled;
 }

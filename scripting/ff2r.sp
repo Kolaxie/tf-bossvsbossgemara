@@ -17,9 +17,9 @@
 #include <dhooks>
 #include <tf2items>
 #include <tf2attributes>
-#include <bvb-rounds>
 #undef REQUIRE_EXTENSIONS
 #undef REQUIRE_PLUGIN
+#include <bvb-rounds>
 
 #define PLUGIN_VERSION			"1.0.0"
 
@@ -237,6 +237,8 @@ int g_Room[MAXPLAYERS + 1] = {NO_ROOM, ...};
 
 GlobalForward g_Forward_OnRoundSetup;
 
+bool g_BvBRounds;
+
 #include "ff2r/client.sp"
 #include "ff2r/stocks.sp"
 
@@ -277,6 +279,13 @@ public Plugin myinfo =
 
 public APLRes AskPluginLoad2(Handle myself, bool late, char[] error, int err_max)
 {
+	MarkNativeAsOptional("BVBRounds_IsSpecialRound");
+	MarkNativeAsOptional("BVBRounds_GetClient");
+	MarkNativeAsOptional("BVBRounds_GetPickedBoss");
+	MarkNativeAsOptional("BVBRounds_IsUltraRound");
+	MarkNativeAsOptional("BVBRounds_GetUltraClient");
+	MarkNativeAsOptional("BVBRounds_GetUltraBoss");
+
 	char plugin[PLATFORM_MAX_PATH];
 	GetPluginFilename(myself, plugin, sizeof(plugin));
 	if(!StrContains(plugin, "freaks", false))
@@ -336,6 +345,7 @@ public void OnPluginStart()
 public void OnAllPluginsLoaded()
 {
 	Configs_AllPluginsLoaded();
+	g_BvBRounds = LibraryExists("bvb-rounds");
 }
 
 public void OnMapInit()
@@ -394,6 +404,9 @@ public void OnLibraryAdded(const char[] name)
 	TF2U_LibraryAdded(name);
 	TFED_LibraryAdded(name);
 	Weapons_LibraryAdded(name);
+	if (StrEqual(name, "bvb-rounds")) {
+		g_BvBRounds = true;
+	}
 }
 
 public void OnLibraryRemoved(const char[] name)
@@ -403,6 +416,9 @@ public void OnLibraryRemoved(const char[] name)
 	TF2U_LibraryRemoved(name);
 	TFED_LibraryRemoved(name);
 	Weapons_LibraryRemoved(name);
+	if (StrEqual(name, "bvb-rounds")) {
+		g_BvBRounds = false;
+	}
 }
 
 public void OnClientPutInServer(int client)
