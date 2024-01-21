@@ -107,7 +107,7 @@ public void OnPluginStart() {
 	convar_Chance_Ultra = CreateConVar("sm_bvb_rounds_chance_ultra", "0.25", "What's the chance of a special round being an ultra round?\n(0.0 = 0%, 1.0 = 100%, 0.50 = 50%)", FCVAR_NOTIFY, true, 0.0, true, 1.0);
 	convar_Max = CreateConVar("sm_bvb_rounds_max", "1", "What's the maximum amount of rounds available per map for a special round to occur?", FCVAR_NOTIFY, true, 0.0);
 	convar_Cooldown = CreateConVar("sm_bvb_rounds_cooldown", "10800", "What's the cooldown a player should have for manually starting a round in seconds?\n(60 seconds = 1 minute)", FCVAR_NOTIFY, true, 0.0);
-	convar_RestartRound = CreateConVar("sm_bvb_rounds_cooldown", "3", "Should the round restart if a raid or ultra is forced?\n(0 = disabled)", FCVAR_NOTIFY, true, 0.0);
+	convar_RestartRound = CreateConVar("sm_bvb_rounds_restart", "3", "Should the round restart if a raid or ultra is forced?\n(0 = disabled)", FCVAR_NOTIFY, true, 0.0);
 	//AutoExecConfig();
 
 	g_Data.Init();
