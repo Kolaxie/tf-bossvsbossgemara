@@ -12,7 +12,7 @@ FF2 Fork
 Raid/Ultra rounds
 
 -Add an admin immunity to raid cooldowns (root probably)
--Checking about making raid sounds the same for everyone (i think i found out that ff2r has functions to edit these via cfg, so on hold)
+-Checking about making raid sounds the same for everyone (intro and theme)
 -Add a center text print when a raid round start ("A Raid Boss has appeared! Goodluck!")
 -Remove the "restart round" convar, it doesn't work and isn't needed, the logic of starting the next round works good enough
 
