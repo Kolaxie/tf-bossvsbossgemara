@@ -134,7 +134,6 @@ void Gamemode_MapStart()
 void Gamemode_MapEnd()
 {
 	delete BackupTimer;
-	g_KillTimer = null;
 }
 
 void Gamemode_RoundSetup()
@@ -187,46 +186,44 @@ void Gamemode_RoundSetup()
 					if(IsClientInGame(client) && GetClientTeam(client) > TFTeam_Spectator)
 						clients[total++] = client;
 				}
-					
+
 				if(total)
 				{
-					SortIntegers(clients, total, Sort_Random);
-
 					int client = BVBRounds_GetClient();
 					int boss = BVBRounds_GetPickedBoss();
 
-					if (client < 1) {
+					if (client < 1 || client > MaxClients) {
 						LogError("Error while starting raid round: client invalid %d", client);
 						return;
 					}
 
-					if (boss < 0) {
+					if (Bosses_GetConfig(boss) == null) {
 						LogError("Error while starting raid round: boss invalid %d", boss);
 						return;
 					}
 
-					//PrintToChatAll("Client: %d", client);
-					//PrintToChatAll("Boss: %d", boss);
+					// PrintToChatAll("Client: %d", client);
+					// PrintToChatAll("Boss: %d", boss);
 
 					bool ultra = BVBRounds_IsUltraRound();
 					int ultraclient = BVBRounds_GetUltraClient();
 					int ultraboss = BVBRounds_GetUltraBoss();
 
 					if (ultra) {
-						if (ultraclient < 1) {
+						if (ultraclient < 1 || ultraclient > MaxClients) {
 							LogError("Error while starting ultra raid round: client invalid %d", ultraclient);
 							return;
 						}
 
-						if (ultraboss < 0) {
+						if (Bosses_GetConfig(ultraboss) == null) {
 							LogError("Error while starting ultra raid round: boss invalid %d", ultraboss);
 							return;
 						}
 					}
 
-					//PrintToChatAll("Ultra: %d", ultra);
-					//PrintToChatAll("Ultra Client: %d", ultraclient);
-					//PrintToChatAll("Ultra Boss: %d", ultraboss);
+					// PrintToChatAll("Ultra: %d", ultra);
+					// PrintToChatAll("Ultra Client: %d", ultraclient);
+					// PrintToChatAll("Ultra Boss: %d", ultraboss);
 
 					bool raid;
 
@@ -274,7 +271,10 @@ void Gamemode_RoundSetup()
 					int team = TFTeam_Red + (GetTime() % 2);
 					for(int i; i < reds; i++)
 					{
+						SetEntProp(red[i], Prop_Send, "m_lifeState", 2);
 						ChangeClientTeam(red[i], team);
+						SetEntProp(red[i], Prop_Send, "m_lifeState", 0);
+						
 						team = team == TFTeam_Red ? TFTeam_Blue : TFTeam_Red;
 					}
 					
@@ -350,7 +350,9 @@ void Gamemode_RoundSetup()
 					team = team == TFTeam_Red ? TFTeam_Blue : TFTeam_Red;
 					for(int i; i < count; i++)
 					{
+						SetEntProp(players[i], Prop_Send, "m_lifeState", 2);
 						ChangeClientTeam(players[i], team);
+						SetEntProp(players[i], Prop_Send, "m_lifeState", 0);
 					}
 				}
 				else	// No boss, normal Arena time
@@ -370,7 +372,10 @@ void Gamemode_RoundSetup()
 						int team = TFTeam_Red + (GetTime() % 2);
 						for(int i; i < count; i++)
 						{
+							SetEntProp(players[i], Prop_Send, "m_lifeState", 2);
 							ChangeClientTeam(players[i], team);
+							SetEntProp(players[i], Prop_Send, "m_lifeState", 0);
+							
 							team = team == TFTeam_Red ? TFTeam_Blue : TFTeam_Red;
 						}
 					}
@@ -597,12 +602,6 @@ void Gamemode_RoundStart()
 	}
 	
 	Music_RoundStart();
-
-	if(g_KillTimer)
-		KillTimer(g_KillTimer);
-
-	g_KillTime = 15 * 60;
-	g_KillTimer = CreateTimer(1.0, Gamemode_KillTimer, _, TIMER_REPEAT | TIMER_FLAG_NO_MAPCHANGE);
 }
 
 void Gamemode_CheckPointUnlock(int alive, bool notice)
@@ -619,7 +618,7 @@ void Gamemode_CheckPointUnlock(int alive, bool notice)
 			}
 		}
 		
-		SetArenaCapEnableTime(0.0);
+		GameRules_SetPropFloat("m_flCapturePointEnableTime", GetGameTime());
 		SetControlPoint(true);
 		PointUnlock = 0;
 	}
@@ -871,15 +870,6 @@ void Gamemode_RoundEnd(int winteam)
 			}
 		}
 	}
-
-	if(g_KillTimer)
-		KillTimer(g_KillTimer);
-
-	for (int i = 1; i <= MaxClients; i++) {
-		if (IsClientInGame(i) && !IsFakeClient(i)) {
-			ClearSyncHud(i, TimerHud);
-		}
-	}
 }
 
 void Gamemode_UpdateHUD(int team, bool healing = false, bool nobar = false)
@@ -1019,16 +1009,16 @@ void Gamemode_UpdateHUD(int team, bool healing = false, bool nobar = false)
 			}
 			else if(count < 3)
 			{
-				// int entity = MaxClients + 1;
-				// while((entity = FindEntityByClassname(entity, "eyeball_boss")) != -1)
-				// {
-				// 	if(GetEntProp(entity, Prop_Send, "m_iTeamNum") > TFTeam_Blue)
-				// 		break;
-				// }
+				int entity = MaxClients + 1;
+				while((entity = FindEntityByClassname(entity, "eyeball_boss")) != -1)
+				{
+					if(GetEntProp(entity, Prop_Send, "m_iTeamNum") > TFTeam_Blue)
+						break;
+				}
 				
-				//if(entity == -1)
-				//{
-					//entity = FindEntityByClassname(-1, "monster_resource");
+				if(entity == -1)
+				{
+					entity = FindEntityByClassname(-1, "monster_resource");
 					if(!maxcombined)
 					{
 						//if(entity != -1)
@@ -1036,11 +1026,11 @@ void Gamemode_UpdateHUD(int team, bool healing = false, bool nobar = false)
 					}
 					else
 					{
-						//if(entity == -1)
-						//{
-						//	entity = CreateEntityByName("monster_resource");
-						//	DispatchSpawn(entity);
-						//}
+						if(entity == -1)
+						{
+							entity = CreateEntityByName("monster_resource");
+							DispatchSpawn(entity);
+						}
 						
 						float gameTime = GetGameTime();
 						if(healing)
@@ -1048,12 +1038,12 @@ void Gamemode_UpdateHUD(int team, bool healing = false, bool nobar = false)
 						
 						if(HealingFor > gameTime)
 						{
-							//SetEntProp(entity, Prop_Send, "m_iBossState", true);
+							SetEntProp(entity, Prop_Send, "m_iBossState", true);
 							refresh = HealingFor - gameTime;
 						}
 						else
 						{
-							//SetEntProp(entity, Prop_Send, "m_iBossState", false);
+							SetEntProp(entity, Prop_Send, "m_iBossState", false);
 						}
 						
 						int amount;
@@ -1068,17 +1058,26 @@ void Gamemode_UpdateHUD(int team, bool healing = false, bool nobar = false)
 								amount = 1;
 						}
 						
-						//SetEntProp(entity, Prop_Send, "m_iBossHealthPercentageByte", amount, 2);
+						SetEntProp(entity, Prop_Send, "m_iBossHealthPercentageByte", amount, 2);
 					}
-				//}
+				}
 			}
 			else if(lastCount < 3)
 			{
+				int entity = MaxClients + 1;
+				while((entity = FindEntityByClassname(entity, "eyeball_boss")) != -1)
+				{
+					if(GetEntProp(entity, Prop_Send, "m_iTeamNum") > TFTeam_Blue)
+						break;
+				}
+				
+				if(entity == -1)
+				{
+					entity = FindEntityByClassname(-1, "monster_resource");
+					if(entity != -1)
+						SetEntProp(entity, Prop_Send, "m_iBossHealthPercentageByte", 0, 2);
+				}
 			}
-
-			int entity = FindEntityByClassname(-1, "monster_resource");
-			if(entity != -1)
-				RemoveEntity(entity);
 			
 			if(HudTimer[team])
 			{
@@ -1302,38 +1301,4 @@ public Action Gamemode_DisguiseTimer(Handle timer, int userid)
 		return Plugin_Continue;
 	}
 	return Plugin_Stop;
-}
-
-public Action Gamemode_KillTimer(Handle timer) {
-	if (!Enabled || RoundStatus != 1) {
-		return Plugin_Continue;
-	}
-
-	if (g_KillTime <= 120) {
-		for (int i = 1; i <= MaxClients; i++) {
-			if (IsClientInGame(i) && IsPlayerAlive(i) && !IsFakeClient(i)) {
-				SetHudTextParamsEx(-1.0, 0.2, 1.0, {255, 255, 255, 255});
-				ShowSyncHudText(i, TimerHud, "Kill Timer - %i", g_KillTime);
-			}
-		}
-	}
-
-	if (g_KillTime > 0) {
-		g_KillTime--;
-		return Plugin_Continue;
-	}
-
-	int health;
-	for (int i = 1; i <= MaxClients; i++) {
-		if (!IsClientInGame(i) || !IsPlayerAlive(i)) {
-			continue;
-		}
-		
-		if (Client(i).IsBoss || Client(i).Minion) {
-			health = GetClientHealth(i);
-			SetEntityHealth(i, (health - 100));
-		}
-	}
-
-	return Plugin_Continue;
 }

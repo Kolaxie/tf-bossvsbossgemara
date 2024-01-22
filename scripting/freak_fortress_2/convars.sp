@@ -21,7 +21,7 @@ static bool CvarHooked;
 
 void ConVar_PluginStart()
 {
-	Cvar[Version] = CreateConVar("ff2_version", PLUGIN_VERSION, "Boss vs Boss Gemara Version", FCVAR_NOTIFY|FCVAR_DONTRECORD);
+	Cvar[Version] = CreateConVar("ff2_version", PLUGIN_VERSION_FULL, "Freak Fortress 2 Version", FCVAR_NOTIFY|FCVAR_DONTRECORD);
 	Cvar[NextCharset] = CreateConVar("ff2_current", "0", "Boss pack set for next load", FCVAR_DONTRECORD);
 	Cvar[Debugging] = CreateConVar("ff2_debug", "0", "If to display debug outputs and keep full configs", FCVAR_NOTIFY|FCVAR_DONTRECORD, true, 0.0, true, 1.0);
 	
@@ -48,7 +48,6 @@ void ConVar_PluginStart()
 	Cvar[Telefrags] = CreateConVar("ff2_game_telefrag", "5000", "How much damage telefrags do on bosses");
 	Cvar[SubpluginFolder] = CreateConVar("ff2_plugin_subplugins", "freaks", "Folder to load/unload when bosses are at play relative to the plugins folder.");
 	Cvar[FileCheck] = CreateConVar("ff2_plugin_checkfiles", "1", "If to check and warn about missing files from bosses. (Disabling this can help load times.)", _, true, 0.0, true, 1.0);
-	Cvar[IconsOffset] = CreateConVar("ff2_icons_offset", "30.0", "How high or low the team icons should be for players to see?", _, true);
 	
 	CreateConVar("ff2_oldjump", "1", "Backwards Compatibility ConVar", FCVAR_DONTRECORD|FCVAR_HIDDEN, true, 0.0, true, 1.0);
 	CreateConVar("ff2_base_jumper_stun", "0", "Backwards Compatibility ConVar", FCVAR_DONTRECORD|FCVAR_HIDDEN, true, 0.0, true, 1.0);
@@ -81,12 +80,12 @@ void ConVar_ConfigsExecuted()
 	{
 		char buffer[512];
 		Cvar[Version].GetString(buffer, sizeof(buffer));
-		if(!StrEqual(buffer, PLUGIN_VERSION))
+		if(!StrEqual(buffer, PLUGIN_VERSION_FULL))
 		{
 			if(buffer[0])
 				generate = true;
 			
-			Cvar[Version].SetString(PLUGIN_VERSION);
+			Cvar[Version].SetString(PLUGIN_VERSION_FULL);
 		}
 	}
 	
@@ -102,8 +101,9 @@ static void GenerateConfig()
 	File file = OpenFile("cfg/sourcemod/FF2Rewrite.cfg", "wt");
 	if(file)
 	{
-		file.WriteLine("// Settings present are for Boss vs Boss Gemara");
+		file.WriteLine("// Settings present are for Freak Fortress 2: Rewrite (" ... PLUGIN_VERSION ... "." ... PLUGIN_VERSION_REVISION ... ")");
 		file.WriteLine("// Updating the plugin version will generate new cvars and any non-FF2 commands will be lost");
+		file.WriteLine("ff2_version \"" ... PLUGIN_VERSION_FULL ... "\"");
 		file.WriteLine(NULL_STRING);
 		
 		char buffer1[512], buffer2[256];

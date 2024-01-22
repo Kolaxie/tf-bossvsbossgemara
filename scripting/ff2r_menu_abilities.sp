@@ -5,10 +5,10 @@
 		"tickrate"	"0.1"		// Menu tick rate
 		"weapon"	"-1"		// Weapon slot (0-9) or weapon index (10+)
 		"limit"		"-1"		// Max amount of spells to choose from at once
-		"refresh"	"0x0000"	// When to refresh spell list if limit is enabled
-		// 0x0001: On Kill
-		// 0x0002: On Spell Cast
-		// 0x0004: On Rage (Uses "slot")
+		"refresh"	"0"	// When to refresh spell list if limit is enabled
+		// 1: On Kill
+		// 2: On Spell Cast
+		// 4: On Rage (Uses "slot")
 		
 		"manas"
 		{
@@ -37,16 +37,17 @@
 				"name"		"RAGE"	// Name, can use "name_en", etc. If left blank, section name is used instead
 				"delay"		"10.0"	// Initial cooldown
 				"cooldown"	"30.0"	// Cooldown on use
+				"global cooldown"	"30.0"	// Like 'cooldown', but applies to all spells
 				"low"		"8"		// Lowest ability slot to activate. If left blank, "high" is used
 				"high"		"8"		// Highest ability slot to activate. If left blank, "low" is used
-				"flags"		"0x0001"// Casting flags
-				// 0x0001: Magic (Sapper effect prevents casting)
-				// 0x0002: Mind (Stun effects DOESN'T prevent casting)
-				// 0x0004: Summon (Requires a dead summonable player to cast)
-				// 0x0008: Partner (Requires a teammate boss alive to cast)
-				// 0x0010: Last Life (Requires a single life left to cast)
-				// 0x0020: Grounded (Requires being on the ground to cast)
-				// 0x0040: Priority (Will always appear when "limit" is on)
+				"flags"		"1"		// Casting flags
+				// 1: Magic (Sapper effect prevents casting)
+				// 2: Mind (Stun effects DOESN'T prevent casting)
+				// 4: Summon (Requires a dead summonable player to cast)
+				// 8: Partner (Requires a teammate boss alive to cast)
+				// 16: Last Life (Requires a single life left to cast)
+				// 32: Grounded (Requires being on the ground to cast)
+				// 64: Priority (Will always appear when "limit" is on)
 				
 				"cost"	// Contains two different methods
 				{
@@ -252,7 +253,7 @@ public void FF2R_OnBossCreated(int client, BossData boss, bool setup)
 									{
 										length = snap2.KeyBufferSize(a)+1;
 										char[] key2 = new char[length];
-										snap.GetKey(a, key2, length);
+										snap2.GetKey(a, key2, length);
 										
 										ConfigData mana = cost.GetSection(key2);
 										if(mana)
@@ -428,9 +429,9 @@ public bool ShowMenuAll(int client, bool ticked)
 		AbilityData ability = boss.GetAbility(ABILITY_NAME);
 		if(ability)
 		{
-			int var1;
+			int var1 = ability.GetInt("weapon", -1);
 			bool enabled = IsPlayerAlive(client);
-			if(enabled && ability.GetInt("weapon", var1) && var1 >= 0)
+			if(enabled && var1 >= 0)
 			{
 				if(var1 > 9)
 				{
@@ -444,7 +445,7 @@ public bool ShowMenuAll(int client, bool ticked)
 				}
 			}
 			
-			if(ViewingMenu[client] || (enabled && GetClientMenu(client) == MenuSource_None))
+			if(enabled && (ViewingMenu[client] || GetClientMenu(client) == MenuSource_None))
 				ShowMenu(client, client, boss, ability, enabled, ticked);
 			
 			int team1 = GetClientTeam(client);
@@ -514,6 +515,7 @@ public void ShowMenu(int target, int client, BossData boss, AbilityData ability,
 						{
 							amount = maximum;
 						}
+						SetBossCharge(boss, key, amount);
 					}
 					else
 					{
@@ -593,7 +595,7 @@ public void ShowMenu(int target, int client, BossData boss, AbilityData ability,
 			{
 				if(FF2R_GetBossData(i))
 				{
-					if(GetClientTeam(i) == team)
+					if(IsPlayerAlive(i) && GetClientTeam(i) == team)
 						allies++;
 				}
 				else if(GetClientTeam(i) > view_as<int>(TFTeam_Spectator))
@@ -649,7 +651,7 @@ public void ShowMenu(int target, int client, BossData boss, AbilityData ability,
 							{
 								length = snap2.KeyBufferSize(a)+1;
 								char[] key2 = new char[length];
-								snap.GetKey(a, key2, length);
+								snap2.GetKey(a, key2, length);
 								
 								float amount;
 								ConfigData mana = cost.GetSection(key2);
@@ -833,9 +835,9 @@ public int ShowMenuH(Menu menu, MenuAction action, int client, int selection)
 				AbilityData ability = boss.GetAbility(ABILITY_NAME);
 				if(ability)
 				{
-					int var1;
+					int var1 = ability.GetInt("weapon", -1);
 					bool enabled = (!SetupMode[client] && IsPlayerAlive(client));
-					if(enabled && ability.GetInt("weapon", var1) && var1 >= 0)
+					if(enabled && var1 >= 0)
 					{
 						if(var1 > 9)
 						{
@@ -883,7 +885,7 @@ public int ShowMenuH(Menu menu, MenuAction action, int client, int selection)
 											{
 												if(FF2R_GetBossData(i))
 												{
-													if(GetClientTeam(i) == team)
+													if(IsPlayerAlive(i) && GetClientTeam(i) == team)
 														allies++;
 												}
 												else if(GetClientTeam(i) > view_as<int>(TFTeam_Spectator))
@@ -985,6 +987,30 @@ public int ShowMenuH(Menu menu, MenuAction action, int client, int selection)
 												
 												if(ability.GetInt("refresh") & RAN_ONUSE)
 													RefreshSpells(client, boss, ability);
+
+												float globalCooldown = spell.GetFloat("global cooldown");
+												ConfigData cfg = ability.GetSection("spells");
+												if(cfg)
+												{
+													StringMapSnapshot snap = cfg.Snapshot();
+
+													int entries = snap.Length;
+													for(int i; i < entries; i++)
+													{
+														int length = snap.KeyBufferSize(i)+1;
+														char[] key = new char[length];
+														snap.GetKey(i, key, length);
+
+														ConfigData spell2 = cfg.GetSection(key);
+
+														if(spell2)
+														{
+															if(spell2.GetFloat("delay") < gameTime + globalCooldown)
+																spell2.SetFloat("delay", gameTime + globalCooldown);
+														}
+													}
+													delete snap;
+												}
 											}
 										}
 									}
@@ -1014,7 +1040,7 @@ public void RefreshSpells(int client, BossData boss, AbilityData ability)
 			{
 				if(FF2R_GetBossData(i))
 				{
-					if(GetClientTeam(i) == team)
+					if(IsPlayerAlive(i) && GetClientTeam(i) == team)
 						allies++;
 				}
 			}

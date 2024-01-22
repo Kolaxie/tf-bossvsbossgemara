@@ -23,9 +23,6 @@ void Native_PluginLoad()
 	CreateNative("FF2R_UpdateBossAttributes", Native_UpdateBossAttributes);
 	CreateNative("FF2R_GetClientHud", Native_GetClientHud);
 	CreateNative("FF2R_SetClientHud", Native_SetClientHud);
-	CreateNative("FF2R_Bosses_GetByName", Native_Bosses_GetByName);
-	CreateNative("FF2R_Bosses_GetConfigLength", Native_Bosses_GetConfigLength);
-	CreateNative("FF2R_Bosses_GetConfig", Native_Bosses_GetConfig);
 	
 	RegPluginLibrary("ff2r");
 }
@@ -232,36 +229,4 @@ public any Native_SetClientHud(Handle plugin, int params)
 	
 	Client(client).NoHud = !GetNativeCell(2);
 	return 0;
-}
-
-public any Native_Bosses_GetByName(Handle plugin, int params)
-{
-	int size;
-	GetNativeStringLength(1, size);
-	char[] name = new char[++size];
-	GetNativeString(1, name, size);
-
-	bool exact = GetNativeCell(2);
-	bool enabled = GetNativeCell(3);
-	int lang = GetNativeCell(4);
-
-	GetNativeStringLength(5, size);
-	char[] key = new char[++size];
-	GetNativeString(5, key, size);
-	
-	return Bosses_GetByName(name, exact, enabled, lang, key);
-}
-
-public any Native_Bosses_GetConfigLength(Handle plugin, int params)
-{
-	return Bosses_GetConfigLength();
-}
-
-public any Native_Bosses_GetConfig(Handle plugin, int params)
-{
-	int index = GetNativeCell(1);
-	if(index < 0 || index >= Bosses_GetConfigLength())
-		return ThrowNativeError(SP_ERROR_NATIVE, "Boss index %d is invalid", index);
-	
-	return Bosses_GetConfig(index);
 }

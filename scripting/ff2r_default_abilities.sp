@@ -4,6 +4,7 @@
 		"slot"				"0"			// Ability slot
 		"amount"			"n/3 + 1"	// Amount of clones to summon
 		"die on boss death"	"true"		// If clones die when the boss dies
+		"allow bosses"	"false"		//Allow bosses to become minions (in the process the boss becomes normal player)
 		
 		"character"
 		{
@@ -117,6 +118,7 @@
 		"blue"			"255"							// Weapon blue
 		"class"			""								// Override class setup
 		"force switch"	"false"							// Always force weapon switch
+		"lifetime"		""								// Weapon lifetime (Won't replace weapon slot if used)
 		
 		"plugin_name"	"ff2r_default_abilities"
 	}
@@ -265,18 +267,22 @@
 	
 	"special_mobility"
 	{
-		"slot"			"1"						// Charge slot (Only used for sound_ability)
-		"options"		"1"						// Mobility flags (1=Super Jump, 2=Teleport)
-		"button"		"11"					// Button type (11=M2, 13=Reload, 25=M3)
-		"charge"		"1.5"					// Time to fully charge
-		"cooldown"		"5.0"					// Cooldown after use
-		"delay"			"5.0"					// Delay before first use
-		"upward"		"750 + (n * 3.25)"		// Super Jump upward velocity set (n=0.0 ~ 100.0)
-		"forward"		"1.0 + (n * 0.000275)"	// Super Jump forward velocity multi (n=0.0 ~ 100.0)
-		"emergency"		"2000.0"				// Super Jump upward velocity added when touching a hazard
-		"stun"			"2.0"					// Teleport stun duration
+		"slot"				"1"						// Charge slot (Only used for sound_ability)
+		"options"			"1"						// Mobility flags (1=Super Jump, 2=Teleport)
+		"button"			"11"					// Button type (11=M2, 13=Reload, 25=M3)
+		"charge"			"1.5"					// Time to fully charge
+		"cooldown"			"5.0"					// Cooldown after use
+		"delay"				"5.0"					// Delay before first use
+		"upward"			"750 + (n * 3.25)"		// Super Jump upward velocity set (n=0.0 ~ 100.0)
+		"forward"			"1.0 + (n * 0.000275)"	// Super Jump forward velocity multi (n=0.0 ~ 100.0)
+		"emergency"			"2000.0"				// Super Jump upward velocity added when touching a hazard
+		"stun"				"2.0"					// Teleport stun duration
+		"flags"				"97"					// Teleport stun flags
+		"slowdown"			"1.0"					// Teleport stun slowdown
+		"reset on attack"	"false"					// Reset charge on attack
+		"targets"			"3"						// Teleport targets (1=Teammates, 2=Enemies)
 		
-		"plugin_name"	"ff2r_default_abilities"
+		"plugin_name"		"ff2r_default_abilities"
 	}
 	
 	"sound_ability"
@@ -349,6 +355,8 @@
 #define TF2U_LIBRARY	"nosoop_tf2utils"
 #define TCA_LIBRARY		"tf2custattr"
 
+#define TF_PLAYER_ENEMY_BLASTED_ME (1 << 2)
+
 #if defined __nosoop_tf2_utils_included
 bool TF2ULoaded;
 #endif
@@ -361,6 +369,9 @@ Handle SDKEquipWearable;
 Handle SDKGetMaxHealth;
 Handle SDKSetSpeed;
 Handle SyncHud;
+
+int BlastJumpStateOffset = -1;
+
 int PlayersAlive[4];
 bool SpecTeam;
 
@@ -458,6 +469,10 @@ public void OnPluginStart()
 	SDKSetSpeed = EndPrepSDKCall();
 	if(!SDKSetSpeed)
 		LogError("[Gamedata] Could not find CTFPlayer::TeamFortress_SetSpeed");
+	
+	BlastJumpStateOffset = gamedata.GetOffset("CTFPlayer::m_iBlastJumpState");
+	if(BlastJumpStateOffset == -1)
+		LogError("[Gamedata] Could not find CTFPlayer::m_iBlastJumpState");
 	
 	delete gamedata;
 	
@@ -819,8 +834,18 @@ public void OnPlayerRunCmdPost(int client, int buttons, int impulse, const float
 							button = 11;
 						}
 					}
-
-					if(buttons & (1 << button))
+					
+					if(((buttons & IN_ATTACK) || (button != 11 && (buttons & IN_ATTACK2))) && ability.GetBool("reset on attack", false))
+					{
+						if(timeIn)
+						{
+							timeIn = 0.0;
+							ability.SetFloat("delay", 0.0);
+							
+							hud = true;
+						}
+					}
+					else if(buttons & (1 << button))
 					{
 						if(!timeIn)
 						{
@@ -847,7 +872,12 @@ public void OnPlayerRunCmdPost(int client, int buttons, int impulse, const float
 						{
 							int target = -1;
 							
+							button = ability.GetInt("targets", 3);
+							bool friendly = view_as<bool>(button & 1);
+							bool enemies = view_as<bool>(button & 2);
+
 							float pos1[3];
+
 							if(!emergency)
 							{
 								FF2R_StartLagCompensation(client);
@@ -856,31 +886,56 @@ public void OnPlayerRunCmdPost(int client, int buttons, int impulse, const float
 								
 								Handle trace = TR_TraceRayFilterEx(pos1, angles, MASK_PLAYERSOLID, RayType_Infinite, TraceRay_DontHitSelf, client);
 								TR_GetEndPosition(pos1, trace);
+								delete trace;
+							}
+							
+							float distance;
+							float pos2[3];
+							float scale = GetEntPropFloat(client, Prop_Send, "m_flModelScale");
+							int team1 = GetClientTeam(client);
+							
+							for(int i = 1; i <= MaxClients; i++)
+							{
+								if(i == client || !IsClientInGame(i) || !IsPlayerAlive(i))
+									continue;
 								
-								float distance;
-								float pos2[3];
-								float scale = GetEntPropFloat(client, Prop_Send, "m_flModelScale");
+								int team2 = GetClientTeam(i);
 								
-								for(int i = 1; i <= MaxClients; i++)
+								if(!friendly)
 								{
-									if(i == client || !IsClientInGame(i) || !IsPlayerAlive(i))
+									if(team1 == team2)
 										continue;
-									
-									if(!SpecTeam && GetClientTeam(i) <= view_as<int>(TFTeam_Spectator))
-										continue;
-									
-									if(scale < GetEntPropFloat(i, Prop_Send, "m_flModelScale"))
-										continue;
-									
-									GetEntPropVector(i, Prop_Send, "m_vecOrigin", pos2);
-									float dist = GetVectorDistance(pos1, pos2, true);
-									if(target == -1 || dist < distance)
-									{
-										distance = dist;
-										target = i;
-									}
 								}
 								
+								if(!enemies)
+								{
+									if(team1 != team2)
+										continue;
+								}
+
+								if(team1 > view_as<int>(TFTeam_Spectator) && !SpecTeam && team2 <= view_as<int>(TFTeam_Spectator))
+									continue;
+								
+								if(scale < GetEntPropFloat(i, Prop_Send, "m_flModelScale"))
+									continue;
+								
+								if(emergency)
+								{
+									target = i;
+									break;
+								}
+
+								GetEntPropVector(i, Prop_Send, "m_vecOrigin", pos2);
+								float dist = GetVectorDistance(pos1, pos2, true);
+								if(target == -1 || dist < distance)
+								{
+									distance = dist;
+									target = i;
+								}
+							}
+							
+							if(!emergency)
+							{
 								FF2R_FinishLagCompensation(client);
 							}
 							
@@ -888,14 +943,26 @@ public void OnPlayerRunCmdPost(int client, int buttons, int impulse, const float
 							{
 								float stun = ability.GetFloat("stun", 2.0);
 								
-								TF2_StunPlayer(client, stun, 1.0, TF_STUNFLAGS_LOSERSTATE);
-								
-								DataPack pack;
-								CreateDataTimer(stun, Timer_RestoreCollision, pack, TIMER_FLAG_NO_MAPCHANGE);
-								pack.WriteCell(GetClientUserId(client));
-								pack.WriteCell(GetEntProp(client, Prop_Send, "m_CollisionGroup"));
-								
-								SetEntityCollisionGroup(client, 2);
+								if(stun > 0.0)
+								{
+									int flags = ability.GetInt("flags", TF_STUNFLAGS_LOSERSTATE);
+									float slowdown = ability.GetFloat("slowdown", 1.0);
+
+									if(slowdown > 0.0)
+										TF2_RemoveCondition(client, TFCond_MegaHeal);
+									
+									TF2_StunPlayer(client, stun, slowdown, flags);
+									SetEntPropFloat(client, Prop_Send, "m_flNextAttack", GetGameTime() + stun);
+
+									TF2_AddCondition(target, TFCond_UberchargedHidden, 0.2, client);
+
+									DataPack pack;
+									CreateDataTimer(stun, Timer_RestoreCollision, pack, TIMER_FLAG_NO_MAPCHANGE);
+									pack.WriteCell(GetClientUserId(client));
+									pack.WriteCell(GetEntProp(client, Prop_Send, "m_CollisionGroup"));
+
+									SetEntityCollisionGroup(client, 2);
+								}
 								
 								GetEntPropVector(target, Prop_Send, "m_vecOrigin", pos1);
 								
@@ -924,9 +991,6 @@ public void OnPlayerRunCmdPost(int client, int buttons, int impulse, const float
 							float velocity[3];
 							GetEntPropVector(client, Prop_Data, "m_vecVelocity", velocity);
 							
-							SetEntProp(client, Prop_Send, "m_bJumping", true);
-							TF2_AddCondition(client, TFCond_BlastJumping, _, client);
-							
 							int power = RoundToFloor(charge);
 							if(power > 100)
 								power = 100;
@@ -942,6 +1006,12 @@ public void OnPlayerRunCmdPost(int client, int buttons, int impulse, const float
 							velocity[2] = ParseFormula(buffer, power);
 							
 							TeleportEntity(client, _, _, velocity);
+							
+							SetEntProp(client, Prop_Send, "m_bJumping", true);
+							if (BlastJumpStateOffset != -1) {
+								SetEntData(client, BlastJumpStateOffset, TF_PLAYER_ENEMY_BLASTED_ME);
+							}
+							TF2_AddCondition(client, TFCond_BlastJumping, _, client);
 							
 							if(ability.GetString("slot", buffer, sizeof(buffer)))
 								FF2R_EmitBossSoundToAll("sound_ability", client, buffer, client, _, SNDLEVEL_TRAFFIC);
@@ -1074,9 +1144,9 @@ public void OnPlayerRunCmdPost(int client, int buttons, int impulse, const float
 		{
 			BossData boss = FF2R_GetBossData(client);
 			AbilityData ability;
-			if(boss && (ability = boss.GetAbility("special_mobility")))
+			if(boss && (ability = boss.GetAbility("special_weighdown")))
 			{
-				WeighdownAirTimeAt[client] = GetGameTime() + ability.GetFloat("airtime", 3.0);
+				WeighdownAirTimeAt[client] = GetGameTime() + ability.GetFloat("delay", 3.0);
 			}
 			else
 			{
@@ -1088,7 +1158,7 @@ public void OnPlayerRunCmdPost(int client, int buttons, int impulse, const float
 		{
 			BossData boss = FF2R_GetBossData(client);
 			AbilityData ability;
-			if(boss && (ability = boss.GetAbility("special_mobility")))
+			if(boss && (ability = boss.GetAbility("special_weighdown")))
 			{
 				WeighdownAirTimeAt[client] = FAR_FUTURE;
 				WeighdownLastGravity[client] = GetEntityGravity(client);
@@ -1655,7 +1725,7 @@ public void OnPlayerDeath(Event event, const char[] name, bool dontBroadcast)
 					int index = -1;
 					StringMapSnapshot snap = ability.Snapshot();
 					
-					int length = snap.Length;
+					int length = snap.Length - 1;
 					if(length > 0)
 					{
 						int entry = GetURandomInt() % length;
@@ -1711,6 +1781,7 @@ public void OnPlayerDeath(Event event, const char[] name, bool dontBroadcast)
 					int entity = CreateEntityByName("prop_physics_override");
 					if(IsValidEntity(entity))
 					{
+						PrecacheModel(model);
 						SetEntityModel(entity, model);
 						SetEntityMoveType(entity, MOVETYPE_VPHYSICS);
 						SetEntProp(entity, Prop_Send, "m_CollisionGroup", 1);
@@ -2166,13 +2237,15 @@ void Rage_NewWeapon(int client, ConfigData cfg, const char[] ability)
 	TFClassType class = TF2_GetPlayerClass(client);
 	GetClassWeaponClassname(class, classname, sizeof(classname));
 	bool wearable = StrContains(classname, "tf_weap") != 0;
+
+	float lifetime = cfg.GetFloat("lifetime");
+
+	int slot = wearable ? TFWeaponSlot_Item2 : cfg.GetInt("weapon slot", -99);
+	if(slot == -99)
+		slot = TF2_GetClassnameSlot(classname);
 	
-	if(!wearable)
+	if(!wearable && lifetime <= 0.0)
 	{
-		int slot = cfg.GetInt("weapon slot", -99);
-		if(slot == -99)
-			slot = TF2_GetClassnameSlot(classname);
-		
 		if(slot >= 0 && slot < 6)
 			TF2_RemoveWeaponSlot(client, slot);
 	}
@@ -2362,8 +2435,7 @@ void Rage_NewWeapon(int client, ConfigData cfg, const char[] ability)
 		}
 		else
 		{
-			SetEntProp(entity, Prop_Send, "m_iWorldModelIndex", -1);
-			SetEntPropFloat(entity, Prop_Send, "m_flModelScale", 0.001);
+			SetEntityRenderMode(entity, RENDER_ENVIRONMENTAL);
 		}
 		
 		level = cfg.GetInt("alpha", 255);
@@ -2381,6 +2453,47 @@ void Rage_NewWeapon(int client, ConfigData cfg, const char[] ability)
 		
 		if(!wearable)
 		{
+			if(lifetime > 0.0)
+			{
+				// Sets this weapon as the main weapon to switch to in this slot
+				// Swaps weapons in m_hMyWeapons to do this
+				
+				int lowestSlot = -1;
+				int lowestEnt = -1;
+				int currentSlot = -1;
+
+				static int length;
+				if(!length)
+					length = GetEntPropArraySize(client, Prop_Send, "m_hMyWeapons");
+				
+				char classname2[36];
+				for(int i; i < length; i++)
+				{
+					int other = GetEntPropEnt(client, Prop_Send, "m_hMyWeapons", i);
+					if(other == entity)
+					{
+						currentSlot = i;
+
+						if(lowestSlot != -1)
+							break;
+					}
+					else if(lowestSlot == -1 && other != -1 && GetEntityClassname(other, classname2, sizeof(classname2)) && TF2_GetClassnameSlot(classname2) == slot)
+					{
+						lowestSlot = i;
+						lowestEnt = other;
+
+						if(currentSlot != -1)
+							break;
+					}
+				}
+
+				if(lowestSlot != -1 && currentSlot != -1)
+				{
+					SetEntPropEnt(client, Prop_Send, "m_hMyWeapons", lowestEnt, currentSlot);
+					SetEntPropEnt(client, Prop_Send, "m_hMyWeapons", entity, lowestSlot);
+				}
+			}
+
 			if(cfg.GetBool("force switch"))
 			{
 				SetEntPropEnt(client, Prop_Send, "m_hActiveWeapon", entity);
@@ -2390,11 +2503,71 @@ void Rage_NewWeapon(int client, ConfigData cfg, const char[] ability)
 				FakeClientCommand(client, "use %s", classname);
 			}
 		}
+
+		if(lifetime > 0.0)
+		{
+			DataPack pack;
+			CreateDataTimer(lifetime, Timer_RemoveItem, pack, TIMER_FLAG_NO_MAPCHANGE);
+			pack.WriteCell(EntIndexToEntRef(entity));
+			pack.WriteCell(GetClientUserId(client));
+			pack.WriteCell(wearable);
+		}
 	}
 	else if(forceClass != TFClass_Unknown)
 	{
 		TF2_SetPlayerClass(client, class, _, false);
 	}
+}
+
+public Action Timer_RemoveItem(Handle timer, DataPack pack)
+{
+	pack.Reset();
+	int entity = EntRefToEntIndex(pack.ReadCell());
+	if(entity != INVALID_ENT_REFERENCE)
+	{
+		int client = GetClientOfUserId(pack.ReadCell());
+		if(client)
+		{
+			if(pack.ReadCell())
+			{
+				TF2_RemoveWearable(client, entity);
+			}
+			else
+			{
+				if(GetEntPropEnt(client, Prop_Send, "m_hActiveWeapon") == entity)
+				{
+					static int length;
+					if(!length)
+						length = GetEntPropArraySize(client, Prop_Send, "m_hMyWeapons");
+
+					for(int i; i < length; i++)
+					{
+						int other = GetEntPropEnt(client, Prop_Send, "m_hMyWeapons", i);
+						if(other != entity)
+						{
+							if(HasEntProp(entity, Prop_Send, "m_iWeaponState")) //Reset minigun-like weapons
+							{
+								SetEntProp(entity, Prop_Send, "m_iWeaponState", 0);
+								TF2_RemoveCondition(client, TFCond_Slowed);
+							}
+
+							#if defined __nosoop_tf2_utils_included
+							if(TF2ULoaded)
+							{
+								TF2Util_SetPlayerActiveWeapon(client, other);
+							}
+							#endif
+							SetEntPropEnt(client, Prop_Send, "m_hActiveWeapon", other);
+							break;
+						}
+					}
+				}
+
+				TF2_RemoveItem(client, entity);
+			}
+		}
+	}
+	return Plugin_Continue;
 }
 
 void Rage_CloneAttack(int client, ConfigData cfg)
@@ -2407,6 +2580,8 @@ void Rage_CloneAttack(int client, ConfigData cfg)
 		GetEntPropVector(client, Prop_Send, "m_vecOrigin", pos);
 		
 		int owner = cfg.GetBool("die on boss death", true) ? client : -1;
+		bool allowBosses = cfg.GetBool("allow bosses", false);
+
 		ConfigData minion = cfg.GetSection("character");
 		
 		int victims;
@@ -2415,9 +2590,17 @@ void Rage_CloneAttack(int client, ConfigData cfg)
 		{
 			for(int target = 1; target <= MaxClients; target++)
 			{
-				if(client == target || !IsClientInGame(target) || FF2R_GetBossData(target) || IsPlayerAlive(target) || GetClientTeam(target) != team)
+				if(client == target || !IsClientInGame(target) || IsPlayerAlive(target) || GetClientTeam(target) != team)
 					continue;
-				
+
+				if(FF2R_GetBossData(target))
+				{
+					if(!allowBosses)
+						continue;
+					else
+						FF2R_CreateBoss(target, null);
+				}
+
 				// Same team dead players
 				victim[victims++] = target;
 			}
@@ -2430,9 +2613,17 @@ void Rage_CloneAttack(int client, ConfigData cfg)
 		{
 			for(int target = 1; target <= MaxClients; target++)
 			{
-				if(client == target || !IsClientInGame(target) || FF2R_GetBossData(target) || IsPlayerAlive(target) || GetClientTeam(target) == team)
+				if(client == target || !IsClientInGame(target) || IsPlayerAlive(target) || GetClientTeam(target) == team)
 					continue;
-				
+
+				if(FF2R_GetBossData(target))
+				{
+					if(!allowBosses)
+						continue;
+					else
+						FF2R_CreateBoss(target, null);
+				}
+
 				// Same team alive players
 				victim[victims++] = target;
 			}
@@ -2444,19 +2635,17 @@ void Rage_CloneAttack(int client, ConfigData cfg)
 			{
 				for(int target = 1; target <= MaxClients; target++)
 				{
-					if(client == target || !IsClientInGame(target) || FF2R_GetBossData(target))
+					if(client == target || !IsClientInGame(target) || IsPlayerAlive(target) || GetClientTeam(target) <= view_as<int>(TFTeam_Spectator))
 						continue;
-					
-					if(GetClientTeam(target) > view_as<int>(TFTeam_Spectator))
+
+					if(FF2R_GetBossData(target))
 					{
-						if(IsPlayerAlive(target))
+						if(!allowBosses)
 							continue;
+						else
+							FF2R_CreateBoss(target, null);
 					}
-					else if(SpecTeam || !IsPlayerAlive(target))
-					{
-						continue;
-					}
-					
+
 					// Any dead players
 					victim[victims++] = target;
 				}
@@ -2639,6 +2828,11 @@ public Action Timer_RageExplosiveDance(Handle timer, DataPack pack)
 
 void Rage_ExplosiveDance(int client, ConfigData cfg, const char[] ability, int count)
 {
+	if(!IsPlayerAlive(client))
+	{
+		return;
+	}
+	
 	int alive = GetTotalPlayersAlive(CvarFriendlyFire.BoolValue ? -1 : GetClientTeam(client));
 	float damage = GetFormula(cfg, "damage", alive, 180.0);
 	float distance = GetFormula(cfg, "distance", alive, 350.0);
@@ -3290,6 +3484,20 @@ void GetClassWeaponClassname(TFClassType class, char[] name, int length)
 			default:		strcopy(name, length, "tf_weapon_shotgun_soldier");
 		}
 	}
+}
+
+void TF2_RemoveItem(int client, int weapon)
+{
+	int entity = GetEntPropEnt(weapon, Prop_Send, "m_hExtraWearable");
+	if(entity != -1)
+		TF2_RemoveWearable(client, entity);
+
+	entity = GetEntPropEnt(weapon, Prop_Send, "m_hExtraWearableViewModel");
+	if(entity != -1)
+		TF2_RemoveWearable(client, entity);
+
+	RemovePlayerItem(client, weapon);
+	RemoveEntity(weapon);
 }
 
 int TF2_GetClassnameSlot(const char[] classname, bool econ = false)

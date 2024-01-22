@@ -6,7 +6,6 @@
 #include <morecolors>
 #include <textstore>
 #include <ff2r>
-#include <cfgmap>
 
 #define TEXTSTORE_ITEM "Raid - "
 
@@ -18,6 +17,7 @@ ConVar convar_Cooldown;
 ConVar convar_RestartRound;
 
 Database g_Database;
+bool g_IsFF2Loaded;
 
 enum struct PluginData {
 	bool enabled;			// Whether the current round is enabled to be special or not.
@@ -122,6 +122,26 @@ public void OnPluginStart() {
 	RegAdminCmd("sm_ultraround", AdminCmd_UltraRound, ADMFLAG_GENERIC, "Starts an ultra round.");
 	RegAdminCmd("sm_startultra", AdminCmd_UltraRound, ADMFLAG_GENERIC, "Starts an ultra round.");
 	RegAdminCmd("sm_startultraround", AdminCmd_UltraRound, ADMFLAG_GENERIC, "Starts an ultra round.");
+}
+
+public void OnAllPluginsLoaded() {
+	g_IsFF2Loaded = LibraryExists("freak_fortress_2");
+}
+
+public void OnLibraryAdded(const char[] name) {
+	if (StrEqual(name, "freak_fortress_2", false)) {
+		g_IsFF2Loaded = true;
+	}
+}
+
+public void OnLibraryRemoved(const char[] name) {
+	if (StrEqual(name, "adminmenu", false)) {
+		g_AdminMenu = null;
+	}
+
+	if (StrEqual(name, "freak_fortress_2", false)) {
+		g_IsFF2Loaded = false;
+	}
 }
 
 public void OnSQLConnect(Database db, const char[] error, any data) {
@@ -243,6 +263,10 @@ public void FF2R_OnRoundSetup() {
 }
 
 int GetRandomBoss(bool ultra) {
+	if (!g_IsFF2Loaded) {
+		return -1;
+	}
+
 	int total = FF2R_Bosses_GetConfigLength();
 
 	int[] bosses = new int[total];
@@ -250,13 +274,16 @@ int GetRandomBoss(bool ultra) {
 
 	for (int i = 0; i < total; i++) {
 		int index = GetRandomInt(0, total - 1);
-		ConfigData boss = FF2R_Bosses_GetConfig(index);
+		ConfigMap boss = FF2R_Bosses_GetConfig(index);
 
 		if (boss == null) {
 			continue;
 		}
 
-		if (!boss.GetBool((ultra ? "ultra" : "raid"), false)) {
+		bool isultra;
+		boss.GetBool((ultra ? "ultra" : "raid"), isultra);
+
+		if (!ultra && !isultra) {
 			continue;
 		}
 
@@ -296,8 +323,13 @@ public ItemResult TextStore_Item(int client, bool equipped, KeyValues item, int 
 	if (StrContains(name, TEXTSTORE_ITEM, false) == 0) {
 		char boss[64];
 		item.GetString("boss", boss, sizeof(boss));
-
-		int bossIndex = FF2R_Bosses_GetByName(boss, false, _, GetServerLanguage());
+		
+		int bossIndex;
+		if (g_IsFF2Loaded) {
+			bossIndex = FF2R_Bosses_GetByName(boss, false, _, GetServerLanguage());
+		} else {
+			bossIndex = -1;
+		}
 
 		if (bossIndex == -1) {
 			return Item_None;
@@ -355,7 +387,7 @@ void FormatSeconds(float seconds, char[] buffer, int maxlength, const char[] for
 	int day; char sDay[32];
 	if (t >= 86400) {
 		day = RoundToFloor(t / 86400.0);
-		t %= 86400;
+		t = t % 86400;
 
 		Format(sDay, sizeof(sDay), "%02d", day);
 	}
@@ -363,7 +395,7 @@ void FormatSeconds(float seconds, char[] buffer, int maxlength, const char[] for
 	int hour; char sHour[32];
 	if (t >= 3600) {
 		hour = RoundToFloor(t / 3600.0);
-		t %= 3600;
+		t = t % 3600;
 
 		Format(sHour, sizeof(sHour), "%02d", hour);
 	}
@@ -371,7 +403,7 @@ void FormatSeconds(float seconds, char[] buffer, int maxlength, const char[] for
 	int mins; char sMinute[32];
 	if (t >= 60) {
 		mins = RoundToFloor(t / 60.0);
-		t %= 60;
+		t = t % 60;
 
 		Format(sMinute, sizeof(sMinute), "%02d", mins);
 	}
@@ -416,12 +448,6 @@ public int Native_IsUltraClient(Handle plugin, int numParams) {
 
 public int Native_IsUltraBoss(Handle plugin, int numParams) {
 	return g_Data.ultraboss;
-}
-
-public void OnLibraryRemoved(const char[] name) {
-	if (StrEqual(name, "adminmenu", false)) {
-		g_AdminMenu = null;
-	}
 }
 
 public void OnAdminMenuCreated(Handle aTopMenu) {

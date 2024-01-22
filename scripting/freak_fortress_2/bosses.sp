@@ -417,7 +417,7 @@ void Bosses_BuildPacks(int &charset, const char[] mapname)
 	}
 	else
 	{
-		PackList.PushString("Boss vs Boss Gemara");
+		PackList.PushString("Freak Fortress 2");
 		BuildPath(Path_SM, filepath, sizeof(filepath), FOLDER_CONFIGS);
 		LoadCharacterDirectory(filepath, NULL_STRING, true, 0, mapname, charset>=0);
 		if(Enabled && charset >= 0)
@@ -559,7 +559,7 @@ static void LoadCharacter(const char[] character, int charset, const char[] map,
 		{
 			if(i == 2)
 			{
-				LogError("[Boss] %s is only compatible with Official Boss vs Boss Gemara Branch", character);
+				LogError("[Boss] %s is only compatible with Official Freak Fortress 2.0 Branch", character);
 			}
 			else
 			{
@@ -906,10 +906,6 @@ static void LoadCharacter(const char[] character, int charset, const char[] map,
 											{
 												PrecacheScriptSound(buffer);
 											}
-											
-											Format(buffer2, sizeof(buffer2), "slot%s", key);
-											if(!cfgsub.GetInt(buffer2, length))
-												cfgsub.SetInt(buffer2, 0);
 										}
 										
 										if(music)
@@ -1635,6 +1631,13 @@ void Bosses_CreateFromConfig(int client, ConfigMap cfg, int team, int leader = 0
 	}
 	
 	static char buffer[512];
+
+	TFClassType playerClass = TFClass_Scout;
+	if(Client(client).Cfg.Get("class", buffer, sizeof(buffer)))
+		playerClass = GetClassOfName(buffer);
+
+	Client(client).Cfg.SetInt("class", view_as<int>(playerClass));
+
 	bool active = GetRoundStatus() == 1;
 	if(active && Client(client).Cfg.Get("command", buffer, sizeof(buffer)))
 		ServerCommand(buffer);
@@ -2071,8 +2074,7 @@ static void EquipBoss(int client, bool weapons)
 					}
 					else if(!wearable)
 					{
-						SetEntProp(entity, Prop_Send, "m_iWorldModelIndex", -1);
-						SetEntPropFloat(entity, Prop_Send, "m_flModelScale", 0.001);
+						SetEntityRenderMode(entity, RENDER_ENVIRONMENTAL);
 					}
 					
 					level = 255;
@@ -2095,8 +2097,12 @@ static void EquipBoss(int client, bool weapons)
 					
 					if(!wearable && !value)
 					{
-						value = true;
-						SetEntPropEnt(client, Prop_Send, "m_hActiveWeapon", entity);
+						level = TF2_GetClassnameSlot(classname);
+						if(level >= TFWeaponSlot_Primary && level <= TFWeaponSlot_Melee)
+						{
+							value = true;
+							SetEntPropEnt(client, Prop_Send, "m_hActiveWeapon", entity);
+						}
 					}
 				}
 				else if(forceClass != TFClass_Unknown)
@@ -3080,7 +3086,7 @@ static void EnableSubplugins()
 								if(!IsSubpluginLoaded(filename))
 									InsertServerCommand("sm plugins load %s/%s", folder, filename);
 								
-								if(!StrEqual(folder, "disabled"))
+								if(!StrEqual(folder, "disabled") && !StrEqual(folder, "optional"))
 								{
 									DataPack pack = new DataPack();
 									pack.WriteString(filepath1);
@@ -3104,7 +3110,7 @@ static void EnableSubplugins()
 									InsertServerCommand("sm plugins load %s/%s", folder, filename);
 								}
 								
-								if(!StrEqual(folder, "disabled"))
+								if(!StrEqual(folder, "disabled") && !StrEqual(folder, "optional"))
 								{
 									DataPack pack = new DataPack();
 									pack.WriteString(filepath2);									

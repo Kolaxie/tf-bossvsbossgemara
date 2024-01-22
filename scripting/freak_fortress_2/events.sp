@@ -18,7 +18,6 @@ void Events_PluginStart()
 	YourHud = CreateHudSynchronizer();
 	TopHud = CreateHudSynchronizer();
 	
-	HookEvent("teamplay_round_start", Events_RoundInit, EventHookMode_Pre);
 	HookEvent("arena_round_start", Events_RoundStart, EventHookMode_Pre);
 	HookEvent("arena_win_panel", Events_WinPanel, EventHookMode_Pre);
 	HookEvent("object_deflected", Events_ObjectDeflected, EventHookMode_Post);
@@ -64,11 +63,11 @@ void Events_CheckAlivePlayers(int exclude = 0, bool alive = true, bool resetMax 
 			if((spec || team > TFTeam_Spectator) && ((!alive && team > TFTeam_Spectator) || IsPlayerAlive(i)))
 			{
 				PlayersAlive[team]++;
-				if(team == TFTeam_Blue && !bluBoss && Client(i).IsBoss && Client(i).Cfg.GetSection("sound_lastman"))
+				if(team == TFTeam_Blue && !bluBoss && Client(i).IsBoss && IsPlayerAlive(i) && Client(i).Cfg.GetSection("sound_lastman"))
 				{
 					bluBoss = i;
 				}
-				else if(team != TFTeam_Blue && !redBoss && Client(i).IsBoss && Client(i).Cfg.GetSection("sound_lastman"))
+				else if(team != TFTeam_Blue && !redBoss && Client(i).IsBoss && IsPlayerAlive(i) && Client(i).Cfg.GetSection("sound_lastman"))
 				{
 					redBoss = i;
 				}
@@ -140,58 +139,6 @@ void Events_CheckAlivePlayers(int exclude = 0, bool alive = true, bool resetMax 
 	
 	if(Enabled && RoundStatus == 1)
 		Gamemode_CheckPointUnlock(total, !LastMann);
-}
-
-public void Events_RoundInit(Event event, const char[] name, bool dontBroadcast) {
-	TFTeam roomTeam[6];
-	for (int i = 0; i < 6; i++) {
-		roomTeam[i] = view_as<TFTeam>(0);
-	}
-
-	for (int client = 1; client <= MaxClients; client++) {
-		if (IsClientInGame(client) && !IsFakeClient(client)) {
-			int room = g_Room[client];
-
-			if (room == NO_ROOM) {
-				continue;
-			}
-
-			if (roomTeam[room] == view_as<TFTeam>(0)) {
-				roomTeam[room] = TF2_GetClientTeam(client);
-			} else {
-				TFTeam currentTeam = TF2_GetClientTeam(client);
-				if (currentTeam != roomTeam[room]) {
-					if (CanSwitchToTeam(client, roomTeam[room])) {
-						TF2_ChangeClientTeam(client, roomTeam[room]);
-					}
-				}
-			}
-		}
-	}
-}
-
-bool CanSwitchToTeam(int client, TFTeam newTeam) {
-	int teamCounts[4];
-
-	for (int i = 1; i <= MaxClients; i++) {
-		if (i != client && IsClientInGame(i) && !IsFakeClient(i)) {
-			int team = GetClientTeam(i);
-			if (team >= 2 && team <= 3) {
-				teamCounts[team]++;
-			}
-		}
-	}
-
-	int currentTeam = GetClientTeam(client);
-	
-	if (currentTeam >= 2 && currentTeam <= 3) {
-		teamCounts[currentTeam]--;
-	}
-
-	teamCounts[newTeam]++;
-
-	int teamDifference = teamCounts[2] - teamCounts[3];
-	return (teamDifference >= -1 && teamDifference <= 1);
 }
 
 public void Events_RoundStart(Event event, const char[] name, bool dontBroadcast)
@@ -270,10 +217,6 @@ public void Events_PlayerSpawn(Event event, const char[] name, bool dontBroadcas
 	{
 		SetEntProp(client, Prop_Send, "m_nModelIndexOverrides", 0, _, 0);
 		SetEntProp(client, Prop_Send, "m_nModelIndexOverrides", 0, _, 3);
-	}
-
-	if (client > 0 && !Client(client).IsBoss) {
-		CreateIcon(client, ICON_MATERIAL_VMT, Cvar[IconsOffset].FloatValue);
 	}
 	
 	Events_CheckAlivePlayers();
@@ -675,8 +618,6 @@ public void Events_PlayerDeath(Event event, const char[] name, bool dontBroadcas
 				
 				Client(victim).ResetByDeath();
 			}
-
-			KillIcon(victim);
 		}
 	}
 }

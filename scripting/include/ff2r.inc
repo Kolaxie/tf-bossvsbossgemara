@@ -4,10 +4,9 @@
 #define _ff2r_included
 
 #include <sdktools_sound>
-#include <cfgmap>
 
-#pragma semicolon 1
-#pragma newdecls required
+#define CFGMAP_FF2R
+#include <cfgmap>
 
 #define SNDVOL_BOSS	2.0
 
@@ -166,26 +165,6 @@ native bool FF2R_GetClientHud(int client);
 native void FF2R_SetClientHud(int client, bool status);
 
 /**
- * Gets the boss's name from the boss list
- * 
- * @param name		Name to search for
- * @param exact		If the name must be exact
- * @param enabled	If the boss is enabled
- * @param lang		Language to get the name in
- * @param key	String to get the name in
- * 
- * @return			Boss's index if found, -1 otherwise
- */
-native int FF2R_Bosses_GetByName(const char[] name, bool exact = true, bool enabled = true, int lang = -1, const char[] key = "name");
-
-/**
- * Get the total amount of boss configs.
- * 
- * @return			Total amount of boss configs
- */
-native int FF2R_Bosses_GetConfigLength();
-
-/**
  * Called when a player spawns, dies, disconnects, etc.
  * 
  * @note		Players counted as minions aren't counted
@@ -311,19 +290,14 @@ stock bool FF2R_EmitBossSoundToAll(const char[] key, int boss, const char[] requ
 	return FF2R_EmitBossSound(clients, total, key, boss, required, entity, channel, level, flags, volume, pitch, speakerentity, origin, dir, updatePos, soundtime);
 }
 
+native int FF2R_Bosses_GetConfigLength();
+native ConfigMap FF2R_Bosses_GetConfig(int special);
+native int FF2R_Bosses_GetByName(const char[] name, bool exact = true, bool enabled = true, int lang = -1, const char[] string = "");
+
 /**
  *	Below is related to using ConfigMap, though cfgmap is not required for this include, needed for the below
  */
 #if defined CFGMAP_FF2R
-
-/**
- * Get a boss config from the boss list.
- * 
- * @param index		Index of the boss config
- * 
- * @return			Boss config handle if found, null otherwise
- */
-native ConfigData FF2R_Bosses_GetConfig(int special);
 
 methodmap ConfigData < ConfigMap
 {
@@ -925,8 +899,6 @@ forward void FF2R_OnBossModifier(int client);
 
 #endif
 
-forward void FF2R_OnRoundSetup();
-
 public SharedPlugin __pl_ff2r =
 {
 	name = "freak_fortress_2",
@@ -957,8 +929,9 @@ public void __pl_ff2r_SetNTVOptional()
 	MarkNativeAsOptional("FF2R_SetBossData");
 	MarkNativeAsOptional("FF2R_GetSpecialData");
 	MarkNativeAsOptional("FF2R_CreateBoss");
-	MarkNativeAsOptional("FF2R_Bosses_GetByName");
+
 	MarkNativeAsOptional("FF2R_Bosses_GetConfigLength");
 	MarkNativeAsOptional("FF2R_Bosses_GetConfig");
+	MarkNativeAsOptional("FF2R_Bosses_GetByName");
 }
 #endif

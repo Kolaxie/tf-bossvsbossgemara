@@ -3,9 +3,6 @@
 		-Batfoxkid
 */
 
-#pragma semicolon 1
-#pragma newdecls required
-
 #include <sourcemod>
 #include <sdkhooks>
 #include <tf2_stocks>
@@ -21,7 +18,12 @@
 #undef REQUIRE_PLUGIN
 #include <bvb-rounds>
 
-#define PLUGIN_VERSION			"1.0.0"
+#pragma semicolon 1
+#pragma newdecls required
+
+#define PLUGIN_VERSION			"1.1"
+#define PLUGIN_VERSION_REVISION	"custom"
+#define PLUGIN_VERSION_FULL		"Rewrite " ... PLUGIN_VERSION ... "." ... PLUGIN_VERSION_REVISION
 
 #define FILE_CHARACTERS	"data/freak_fortress_2/characters.cfg"
 #define FOLDER_CONFIGS	"configs/freak_fortress_2"
@@ -41,9 +43,6 @@
 #define TFTeam_Red			2
 #define TFTeam_Blue			3
 #define TFTeam_MAX			4
-
-#define ICON_MATERIAL_VTF "effects/powerup_agility_icon.vtf"
-#define ICON_MATERIAL_VMT "effects/powerup_agility_icon.vmt"
 
 enum TFStatType_t
 {
@@ -180,8 +179,6 @@ enum
 
 	SubpluginFolder,
 	FileCheck,
-
-	IconsOffset,
 	
 	SoundType,
 	BossTriple,
@@ -224,68 +221,50 @@ bool Enabled;
 int RoundStatus;
 bool PluginsEnabled;
 Handle PlayerHud;
-Handle TimerHud;
 Handle ThisPlugin;
 
-int g_Icons[MAXPLAYERS + 1];
-
-Handle g_KillTimer;
-int g_KillTime;
-
-#define NO_ROOM -1
-int g_Room[MAXPLAYERS + 1] = {NO_ROOM, ...};
-
 GlobalForward g_Forward_OnRoundSetup;
-
 bool g_BvBRounds;
 
-#include "ff2r/client.sp"
-#include "ff2r/stocks.sp"
+#include "freak_fortress_2/client.sp"
+#include "freak_fortress_2/stocks.sp"
 
-#include "ff2r/attributes.sp"
-#include "ff2r/bosses.sp"
-#include "ff2r/commands.sp"
-#include "ff2r/configs.sp"
-#include "ff2r/convars.sp"
-#include "ff2r/database.sp"
-#include "ff2r/dhooks.sp"
-#include "ff2r/econdata.sp"
-#include "ff2r/events.sp"
-#include "ff2r/formula_parser.sp"
-#include "ff2r/forwards.sp"
-#include "ff2r/forwards_old.sp"
-#include "ff2r/gamemode.sp"
-#include "ff2r/goomba.sp"
-#include "ff2r/icons.sp"
-#include "ff2r/menu.sp"
-#include "ff2r/music.sp"
-#include "ff2r/natives.sp"
-#include "ff2r/natives_old.sp"
-#include "ff2r/preference.sp"
-#include "ff2r/sdkcalls.sp"
-#include "ff2r/sdkhooks.sp"
-#include "ff2r/steamworks.sp"
-#include "ff2r/tf2utils.sp"
-#include "ff2r/weapons.sp"
+#include "freak_fortress_2/attributes.sp"
+#include "freak_fortress_2/bosses.sp"
+#include "freak_fortress_2/commands.sp"
+#include "freak_fortress_2/configs.sp"
+#include "freak_fortress_2/convars.sp"
+#include "freak_fortress_2/database.sp"
+#include "freak_fortress_2/dhooks.sp"
+#include "freak_fortress_2/econdata.sp"
+#include "freak_fortress_2/events.sp"
+#include "freak_fortress_2/formula_parser.sp"
+#include "freak_fortress_2/forwards.sp"
+#include "freak_fortress_2/forwards_old.sp"
+#include "freak_fortress_2/gamemode.sp"
+#include "freak_fortress_2/goomba.sp"
+#include "freak_fortress_2/menu.sp"
+#include "freak_fortress_2/music.sp"
+#include "freak_fortress_2/natives.sp"
+#include "freak_fortress_2/natives_old.sp"
+#include "freak_fortress_2/preference.sp"
+#include "freak_fortress_2/sdkcalls.sp"
+#include "freak_fortress_2/sdkhooks.sp"
+#include "freak_fortress_2/steamworks.sp"
+#include "freak_fortress_2/tf2utils.sp"
+#include "freak_fortress_2/weapons.sp"
 
 public Plugin myinfo =
 {
-	name		=	"[TF2] Boss vs Boss Gemara",
-	author		=	"Batfoxkid, many others and forked by Drixevel & Kolaxie",
-	description	=	"Fork of the FF2 mode to allow for custom boss vs boss matches.",
-	version		=	PLUGIN_VERSION,
-	url			=	"https://sourcemod.net/"
+	name		=	"Freak Fortress 2: Rewrite",
+	author		=	"Batfoxkid based on the original done by many others",
+	description	=	"It's like Christmas Morning",
+	version		=	PLUGIN_VERSION ... "." ... PLUGIN_VERSION_REVISION,
+	url			=	"https://forums.alliedmods.net/forumdisplay.php?f=154"
 }
 
 public APLRes AskPluginLoad2(Handle myself, bool late, char[] error, int err_max)
 {
-	MarkNativeAsOptional("BVBRounds_IsSpecialRound");
-	MarkNativeAsOptional("BVBRounds_GetClient");
-	MarkNativeAsOptional("BVBRounds_GetPickedBoss");
-	MarkNativeAsOptional("BVBRounds_IsUltraRound");
-	MarkNativeAsOptional("BVBRounds_GetUltraClient");
-	MarkNativeAsOptional("BVBRounds_GetUltraBoss");
-
 	char plugin[PLATFORM_MAX_PATH];
 	GetPluginFilename(myself, plugin, sizeof(plugin));
 	if(!StrContains(plugin, "freaks", false))
@@ -301,9 +280,40 @@ public APLRes AskPluginLoad2(Handle myself, bool late, char[] error, int err_max
 	TFED_PluginLoad();
 	Weapons_PluginLoad();
 
+	CreateNative("FF2R_Bosses_GetConfigLength", Native_GetConfigLength);
+	CreateNative("FF2R_Bosses_GetConfig", Native_GetConfig);
+	CreateNative("FF2R_Bosses_GetByName", Native_GetByName);
+
 	g_Forward_OnRoundSetup = new GlobalForward("FF2R_OnRoundSetup", ET_Ignore);
 
 	return APLRes_Success;
+}
+
+public int Native_GetConfigLength(Handle plugin, int numParams) {
+	return Bosses_GetConfigLength();
+}
+
+public int Native_GetConfig(Handle plugin, int numParams) {
+	return view_as<int>(Bosses_GetConfig(GetNativeCell(1)));
+}
+
+public int Native_GetByName(Handle plugin, int numParams) {
+	int size;
+	GetNativeStringLength(1, size);
+	size++;
+	char[] name = new char[size];
+	GetNativeString(1, name, size);
+
+	bool exact = GetNativeCell(2);
+	bool enabled = GetNativeCell(3);
+	int lang = GetNativeCell(4);
+
+	GetNativeStringLength(5, size);
+	size++;
+	char[] str = new char[size];
+	GetNativeString(5, str, size);
+
+	return Bosses_GetByName(name, exact, enabled, lang, str);
 }
 
 public void OnPluginStart()
@@ -315,7 +325,6 @@ public void OnPluginStart()
 		SetFailState("Translation file \"ff2_rewrite.phrases\" is outdated");
 	
 	PlayerHud = CreateHudSynchronizer();
-	TimerHud = CreateHudSynchronizer();
 	
 	Attributes_PluginStart();
 	Bosses_PluginStart();
@@ -345,6 +354,7 @@ public void OnPluginStart()
 public void OnAllPluginsLoaded()
 {
 	Configs_AllPluginsLoaded();
+
 	g_BvBRounds = LibraryExists("bvb-rounds");
 }
 
@@ -358,7 +368,6 @@ public void OnMapStart()
 	Configs_MapStart();
 	DHook_MapStart();
 	Gamemode_MapStart();
-	Icons_MapStart();
 }
 
 public void OnConfigsExecuted()
@@ -404,6 +413,7 @@ public void OnLibraryAdded(const char[] name)
 	TF2U_LibraryAdded(name);
 	TFED_LibraryAdded(name);
 	Weapons_LibraryAdded(name);
+
 	if (StrEqual(name, "bvb-rounds")) {
 		g_BvBRounds = true;
 	}
@@ -416,6 +426,7 @@ public void OnLibraryRemoved(const char[] name)
 	TF2U_LibraryRemoved(name);
 	TFED_LibraryRemoved(name);
 	Weapons_LibraryRemoved(name);
+
 	if (StrEqual(name, "bvb-rounds")) {
 		g_BvBRounds = false;
 	}
@@ -438,11 +449,8 @@ public void OnClientDisconnect(int client)
 	Database_ClientDisconnect(client);
 	Events_CheckAlivePlayers(client);
 	Preference_ClientDisconnect(client);
-	Icons_ClientDisconnect(client);
 	
 	Client(client).ResetByAll();
-
-	g_Room[client] = NO_ROOM;
 }
 
 public Action OnPlayerRunCmd(int client, int &buttons)

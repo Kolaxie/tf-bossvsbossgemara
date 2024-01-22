@@ -136,7 +136,7 @@ public Action TF2_OnTakeDamage(int victim, int &attacker, int &inflictor, float 
 			if(IsInvuln(victim))
 				return Plugin_Continue;
 			
-			Weapons_OnHitBossPre(attacker, victim, damage, weapon, view_as<int>(critType), damagecustom);
+			Weapons_OnHitBossPre(attacker, victim, damage, weapon, view_as<int>(critType), damagecustom, damagetype);
 			
 			switch(damagecustom)
 			{
@@ -357,6 +357,13 @@ public Action TF2_OnTakeDamage(int victim, int &attacker, int &inflictor, float 
 				
 				TF2_RemoveCondition(victim, TFCond_Zoomed);
 				
+				int entity = -1;
+				while((entity=FindEntityByClassname(entity, "tf_wearable_demoshield")) != -1)
+				{
+					if(GetEntPropEnt(entity, Prop_Send, "m_hOwnerEntity") == victim && !GetEntProp(entity, Prop_Send, "m_bDisguiseWearable"))
+						TF2_RemoveWearable(victim, entity);
+				}
+				
 				damage = 0.0;
 				return Plugin_Handled;
 			}
@@ -439,7 +446,7 @@ public void SDKHook_SwitchPost(int client, int weapon)
 
 public Action SDKHook_NormalSHook(int clients[MAXPLAYERS], int &numClients, char sample[PLATFORM_MAX_PATH], int &entity, int &channel, float &volume, int &level, int &pitch, int &flags, char soundEntry[PLATFORM_MAX_PATH], int &seed)
 {
-	if(entity > 0 && entity <= MaxClients && (channel == SNDCHAN_VOICE || (channel == SNDCHAN_STATIC && !StrContains(sample, "vo", false))))
+	if(entity > 0 && entity <= MaxClients && ((channel == SNDCHAN_VOICE && StrContains(sample, "ambient_mp3", false) == -1) || (channel == SNDCHAN_STATIC && !StrContains(sample, "vo", false))))
 	{
 		int client = entity;
 		if(TF2_IsPlayerInCondition(entity, TFCond_Disguised))

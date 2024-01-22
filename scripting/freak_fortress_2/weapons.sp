@@ -7,7 +7,7 @@
 	void Weapons_ChangeMenu(int client, int time = MENU_TIME_FOREVER)
 	void Weapons_ShowChanges(int client, int entity)
 	void Weapons_PlayerDeath(int client)
-	void Weapons_OnHitBossPre(int attacker, int victim, float &damage, int weapon, int critType)
+	void Weapons_OnHitBossPre(int attacker, int victim, float &damage, int weapon, int critType, int damagetype)
 	void Weapons_OnHitBoss(int attacker, int weapon, int newWeaponDamage, int lastWeaponDamage)
 	void Weapons_OnAirblastBoss(int attacker)
 	void Weapons_OnBackstabBoss(int victim, float &damage, int weapon, float &time = 0.0, float &multi = 0.0)
@@ -167,11 +167,11 @@ void Weapons_ChangeMenu(int client, int time = MENU_TIME_FOREVER)
 			if(time == MENU_TIME_FOREVER && Menu_BackButton(client))
 			{
 				FormatEx(buffer, sizeof(buffer), "%t", "Back");
-				menu.AddItem(buffer, buffer);
+				menu.AddItem(NULL_STRING, buffer);
 			}
 			else
 			{
-				menu.AddItem(buffer, buffer, ITEMDRAW_SPACER);
+				menu.AddItem(NULL_STRING, buffer, ITEMDRAW_SPACER);
 			}
 			
 			menu.Display(client, time);
@@ -206,15 +206,15 @@ void Weapons_ChangeMenu(int client, int time = MENU_TIME_FOREVER)
 		if(time == MENU_TIME_FOREVER && Menu_BackButton(client))
 		{
 			FormatEx(buffer2, sizeof(buffer2), "%t", "Back");
-			menu.AddItem(buffer1, buffer2);
+			menu.AddItem(NULL_STRING, buffer2);
 		}
 		else
 		{
-			menu.AddItem(buffer1, buffer1, ITEMDRAW_SPACER);
+			menu.AddItem(NULL_STRING, buffer1, ITEMDRAW_SPACER);
 		}
 		
 		FormatEx(buffer2, sizeof(buffer2), "%t", Client(client).NoChanges ? "Enable Weapon Changes" : "Disable Weapon Changes");
-		menu.AddItem(buffer1, buffer2);
+		menu.AddItem(NULL_STRING, buffer2);
 		
 		menu.Pagination = 0;
 		menu.ExitButton = true;
@@ -252,11 +252,18 @@ public int Weapons_ChangeMenuH(Menu menu, MenuAction action, int client, int cho
 				{
 					char buffer[12];
 					menu.GetItem(choice, buffer, sizeof(buffer));
-					int entity = EntRefToEntIndex(StringToInt(buffer));
-					if(entity != INVALID_ENT_REFERENCE)
-						Weapons_ShowChanges(client, entity);
-					
-					Weapons_ChangeMenu(client);
+					if(buffer[0])
+					{
+						int entity = EntRefToEntIndex(StringToInt(buffer));
+						if(entity != INVALID_ENT_REFERENCE)
+							Weapons_ShowChanges(client, entity);
+						
+						Weapons_ChangeMenu(client);
+					}
+					else
+					{
+						Menu_MainMenu(client);
+					}
 				}
 			}
 		}
@@ -462,7 +469,7 @@ void Weapons_PlayerDeath(int client)
 	HasCritGlow[client] = 0;
 }
 
-stock void Weapons_OnHitBossPre(int attacker, int victim, float &damage, int weapon, int critType, int damagecustom)
+stock void Weapons_OnHitBossPre(int attacker, int victim, float &damage, int weapon, int &critType, int damagecustom, int damagetype)
 {
 	#if defined __tf_custom_attributes_included
 	if(TCALoaded && weapon != -1 && HasEntProp(weapon, Prop_Send, "m_AttributeList"))
@@ -493,7 +500,7 @@ stock void Weapons_OnHitBossPre(int attacker, int victim, float &damage, int wea
 				Gamemode_SetClientGlow(victim, value);
 			}
 			
-			if(critType != 2)
+			if(critType != 2 && !(damagetype & DMG_CRIT))
 				critType = kv.GetNum("mod crit type on bosses", critType);
 			
 			value = kv.GetFloat("multi boss rage", 1.0);
@@ -506,7 +513,7 @@ stock void Weapons_OnHitBossPre(int attacker, int victim, float &damage, int wea
 				kv.GetString("mod attribute hit stale", buffer, sizeof(buffer));
 				if(buffer[0])
 				{
-					char buffers[16][2];
+					char buffers[2][16];
 					ExplodeString(buffer, ";", buffers, sizeof(buffers), sizeof(buffers[]));
 					
 					int attrib = StringToInt(buffers[0]);
@@ -786,7 +793,18 @@ public void Weapons_SpawnFrame(int ref)
 	
 	bool found;
 	if(cfg.GetBool("strip", found, false) && found)
-		DHook_HookStripWeapon(entity);
+	{
+		char classname[36];
+		GetEntityClassname(entity, classname, sizeof(classname));
+		if(!StrContains(classname, "tf_weapon"))
+		{
+			DHook_HookStripWeapon(entity);
+		}
+		else
+		{
+			SetEntProp(entity, Prop_Send, "m_bOnlyIterateItemViewAttributes", true);
+		}
+	}
 	
 	int current;
 	

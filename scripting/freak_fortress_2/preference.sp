@@ -43,14 +43,14 @@ static ArrayList DiffListing[MAXTF2PLAYERS];
 
 void Preference_PluginStart()
 {
-	RegFreakCmd("boss", Preference_BossMenuCmd, "Boss vs Boss Gemara Boss Selection");
-	RegFreakCmd("party", Preference_BossMenuCmd, "Boss vs Boss Gemara Boss Selection", FCVAR_HIDDEN);
-	RegConsoleCmd("sm_boss", Preference_BossMenuLegacy, "Boss vs Boss Gemara Boss Selection", FCVAR_HIDDEN);
-	RegConsoleCmd("sm_setboss", Preference_BossMenuLegacy, "Boss vs Boss Gemara Boss Selection", FCVAR_HIDDEN);
-	RegFreakCmd("modifier", Preference_DifficultyMenuCmd, "Boss vs Boss Gemara Boss Modifiers");
-	RegFreakCmd("modifiers", Preference_DifficultyMenuCmd, "Boss vs Boss Gemara Boss Modifiers", FCVAR_HIDDEN);
-	RegFreakCmd("difficulty", Preference_DifficultyMenuCmd, "Boss vs Boss Gemara Boss Modifiers", FCVAR_HIDDEN);
-	RegFreakCmd("special", Preference_DifficultyMenuCmd, "Boss vs Boss Gemara Boss Modifiers", FCVAR_HIDDEN);
+	RegFreakCmd("boss", Preference_BossMenuCmd, "Freak Fortress 2 Boss Selection");
+	RegFreakCmd("party", Preference_BossMenuCmd, "Freak Fortress 2 Boss Selection", FCVAR_HIDDEN);
+	RegConsoleCmd("sm_boss", Preference_BossMenuLegacy, "Freak Fortress 2 Boss Selection", FCVAR_HIDDEN);
+	RegConsoleCmd("sm_setboss", Preference_BossMenuLegacy, "Freak Fortress 2 Boss Selection", FCVAR_HIDDEN);
+	RegFreakCmd("modifier", Preference_DifficultyMenuCmd, "Freak Fortress 2 Boss Modifiers");
+	RegFreakCmd("modifiers", Preference_DifficultyMenuCmd, "Freak Fortress 2 Boss Modifiers", FCVAR_HIDDEN);
+	RegFreakCmd("difficulty", Preference_DifficultyMenuCmd, "Freak Fortress 2 Boss Modifiers", FCVAR_HIDDEN);
+	RegFreakCmd("special", Preference_DifficultyMenuCmd, "Freak Fortress 2 Boss Modifiers", FCVAR_HIDDEN);
 	
 	RegAdminCmd("ff2_override", Preference_ForceBossCmd, ADMFLAG_CHEATS, "Force a specific boss to appear");
 	

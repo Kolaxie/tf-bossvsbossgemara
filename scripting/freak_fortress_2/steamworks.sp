@@ -53,12 +53,12 @@ stock void SteamWorks_SetGameTitle(const char[] pack = NULL_STRING)
 		if(pack[0])
 		{
 			char buffer[64];
-			FormatEx(buffer, sizeof(buffer), "Boss vs Boss Gemara (%s)", pack);
+			FormatEx(buffer, sizeof(buffer), "Freak Fortress 2: Rewrite (%s)", pack);
 			SteamWorks_SetGameDescription(buffer);
 		}
 		else
 		{
-			SteamWorks_SetGameDescription("Boss vs Boss Gemara (" ... PLUGIN_VERSION ... ".)");
+			SteamWorks_SetGameDescription("Freak Fortress 2: Rewrite (" ... PLUGIN_VERSION ... "." ... PLUGIN_VERSION_REVISION ... ")");
 		}
 	}
 	#endif
