@@ -1,0 +1,22 @@
+FF2 Fork
+
+-ff2party function (beware that /ff2party is already used in the base code and open the boss selection menu)
+-mannpower logo above players head / Team indicator (need to be fixed, change agility logo to supernova logo, disabled during raid rounds)
+-hide/convar(?) to hide boss halloween health bar at the top of the screen
+-investigation related to people losing their weapons, cosmetics etc during warmup (unsure if it was a ff2 bug or a fork bug)
+
+-(Quality Of Life change) Commands in chat: Add the [FF2] Prefix to ff2 plugin related messages like when the player will join a ff2party, the prefix is available in ff2_rewrite.phrases ([FF2]You joined (party). )
+
+---------
+
+Raid/Ultra rounds
+
+-Add an admin immunity to raid cooldowns (root probably)
+-Checking about making raid sounds the same for everyone (i think i found out that ff2r has functions to edit these via cfg, so on hold)
+-Add a center text print when a raid round start ("A Raid Boss has appeared! Goodluck!")
+-Remove the "restart round" convar, it doesn't work and isn't needed, the logic of starting the next round works good enough
+
+-(Quality Of Life change) Commands in chat: Add the [FF2] Prefix to ff2 plugin related messages, the prefix is available in ff2_rewrite.phrases ([FF2]Your raid item has been used. Get ready. | [FF2]You are on cooldown for X minutes | [FF2]A raid round has already happened, wait next map | [FF2](user) used a raid! Get ready!)
+
+-(?)Check why textstore items doesn't seems to work properly, and if name related, replace the prefix by [Raid Boss] for items considered as raid
+
