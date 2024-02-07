@@ -267,7 +267,7 @@ public void FF2R_OnRoundSetup() {
 		}
 
 		enabled = true;
-		PrintCenterTextAll("An Ultra Boss has appeared! Chaos inbound!");		
+		PrintCenterText("An Ultra Boss has appeared! Chaos inbound!");		
 	}
 
 	g_Data.enabled = enabled;
@@ -346,7 +346,7 @@ public ItemResult TextStore_Item(int client, bool equipped, KeyValues item, int 
 
 		int max = convar_Max.IntValue;
 		if (max > 0 && g_Data.amount >= max) {
-			CPrintToChat(client, "{olive}[FF2]{default}The maximum amount of Raid this map has been reached.");
+			CPrintToChat(client, "{green}[FF2]{default} The maximum amount of Raid this map has been reached.");
 			return Item_None;
 		}
 
@@ -356,13 +356,13 @@ public ItemResult TextStore_Item(int client, bool equipped, KeyValues item, int 
 			if (time > 0.0) {
 				char sTime[32];
 				FormatSeconds(time, sTime, sizeof(sTime), "%H:%M:%S");
-				CPrintToChat(client, "{olive}[FF2]{default}You must wait '%s' before forcing a Raid.", sTime);
+				CPrintToChat(client, "{green}[FF2]{default} You must wait '%s' before forcing a Raid.", sTime);
 				return Item_None;
 			}
 		}
 
 		if (g_Data.nextround) {
-			CPrintToChat(client, "{olive}[FF2]{default}A Raid round is already in queue.");
+			CPrintToChat(client, "{green}[FF2]{default} A Raid round is already in queue.");
 			return Item_None;
 		}
 
@@ -381,7 +381,7 @@ public ItemResult TextStore_Item(int client, bool equipped, KeyValues item, int 
 			g_Database.Query(OnStoreCooldown, query, _, DBPrio_Low);
 		}
 
-		CPrintToChatAll("{olive}[FF2]{default}%N has used a Raid for next round. Pick your boss via /ff2boss and get ready!", client);
+		CPrintToChatAll("{green}[FF2]{default} %N has used a Raid for next round. Pick your boss via /ff2boss and get ready!", client);
 		return Item_Used;
 	}
 
@@ -536,7 +536,7 @@ public void Event_OnRoundEnd(Event event, const char[] name, bool dontBroadcast)
 
 public Action AdminCmd_RaidRound(int client, int args) {
 	if (g_Data.nextround) {
-		CPrintToChat(client, "{olive}[FF2]{default}A raid round is already queued up.");
+		CPrintToChat(client, "{green}[FF2]{default} A raid round is already queued up.");
 		return Plugin_Handled;
 	}
 
@@ -546,10 +546,10 @@ public Action AdminCmd_RaidRound(int client, int args) {
 	
 	int restart = convar_RestartRound.IntValue;
 	if (restart > 0) {
-		CPrintToChatAll("{olive}[FF2]{default}%N is starting up a raid round, new round starting in %i second...", client, restart);
+		CPrintToChatAll("{green}[FF2]{default} %N is starting up a raid round, new round starting in %i second...", client, restart);
 		ServerCommand("mp_restartround %i", restart);
 	} else {
-		CPrintToChatAll("{olive}[FF2]{default}%N is starting up a raid round for next round.", client);
+		CPrintToChatAll("{green}[FF2]{default} %N is starting up a raid round for next round.", client);
 	}
 
 	return Plugin_Handled;
@@ -557,7 +557,7 @@ public Action AdminCmd_RaidRound(int client, int args) {
 
 public Action AdminCmd_UltraRound(int client, int args) {
 	if (g_Data.ultra) {
-		CPrintToChat(client, "{olive}[FF2]{default}An ultra round is already queued up.");
+		CPrintToChat(client, "{green}[FF2]{default} An ultra round is already queued up.");
 		return Plugin_Handled;
 	}
 
@@ -568,10 +568,10 @@ public Action AdminCmd_UltraRound(int client, int args) {
 
 	int restart = convar_RestartRound.IntValue;
 	if (restart > 0) {
-		CPrintToChatAll("{olive}[FF2]{default}%N is starting up an ultra round, new round starting in %i second...", client, restart);
+		CPrintToChatAll("{green}[FF2]{default} %N is starting up an ultra round, new round starting in %i second...", client, restart);
 		ServerCommand("mp_restartround %i", restart);
 	} else {
-		CPrintToChatAll("{olive}[FF2]{default}%N is starting up an ultra round for next round.", client);
+		CPrintToChatAll("{green}[FF2]{default} %N is starting up an ultra round for next round.", client);
 	}
 
 	return Plugin_Handled;
