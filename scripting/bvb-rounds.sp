@@ -7,6 +7,7 @@
 #include <textstore>
 #include <ff2r>
 #include <debugger>
+#include <morecolors>
 
 #define TEXTSTORE_ITEM "Raid Boss - "
 
@@ -242,7 +243,7 @@ public void FF2R_OnRoundSetup() {
 		g_Data.nextroundboss = 0;
 
 		enabled = true;
-		PrintToChatAll("SPECIAL ROUND: %N is the boss!", g_Data.client);
+		PrintCenterTextAll("A Raid Boss has appeared! Goodluck!");
 	}
 
 	// If there's no setup for next round, make a random chance for it to happen this round.
@@ -266,7 +267,7 @@ public void FF2R_OnRoundSetup() {
 		}
 
 		enabled = true;
-		PrintToChatAll("SPECIAL ROUND: %N is the boss!", g_Data.client);
+		PrintCenterTextAll("An Ultra Boss has appeared! Chaos inbound!");		
 	}
 
 	g_Data.enabled = enabled;
@@ -345,7 +346,7 @@ public ItemResult TextStore_Item(int client, bool equipped, KeyValues item, int 
 
 		int max = convar_Max.IntValue;
 		if (max > 0 && g_Data.amount >= max) {
-			PrintToChat(client, "The maximum amount of special rounds has been reached.");
+			CPrintToChat(client, "{olive}[FF2]{default}The maximum amount of Raid this map has been reached.");
 			return Item_None;
 		}
 
@@ -355,13 +356,13 @@ public ItemResult TextStore_Item(int client, bool equipped, KeyValues item, int 
 			if (time > 0.0) {
 				char sTime[32];
 				FormatSeconds(time, sTime, sizeof(sTime), "%H:%M:%S");
-				PrintToChat(client, "You must wait '%s' before you can queue up a special round.", sTime);
+				CPrintToChat(client, "{olive}[FF2]{default}You must wait '%s' before forcing a Raid.", sTime);
 				return Item_None;
 			}
 		}
 
 		if (g_Data.nextround) {
-			PrintToChat(client, "A special round is already queued up.");
+			CPrintToChat(client, "{olive}[FF2]{default}A Raid round is already in queue.");
 			return Item_None;
 		}
 
@@ -380,7 +381,7 @@ public ItemResult TextStore_Item(int client, bool equipped, KeyValues item, int 
 			g_Database.Query(OnStoreCooldown, query, _, DBPrio_Low);
 		}
 
-		PrintToChatAll("%N has queued up a special round for next round.", client);
+		CPrintToChatAll("{olive}[FF2]{default}%N has used a Raid for next round. Pick your boss via /ff2boss and get ready!", client);
 		return Item_Used;
 	}
 
@@ -535,7 +536,7 @@ public void Event_OnRoundEnd(Event event, const char[] name, bool dontBroadcast)
 
 public Action AdminCmd_RaidRound(int client, int args) {
 	if (g_Data.nextround) {
-		PrintToChat(client, "A raid round is already queued up.");
+		CPrintToChat(client, "{olive}[FF2]{default}A raid round is already queued up.");
 		return Plugin_Handled;
 	}
 
@@ -545,10 +546,10 @@ public Action AdminCmd_RaidRound(int client, int args) {
 	
 	int restart = convar_RestartRound.IntValue;
 	if (restart > 0) {
-		PrintToChatAll("%N is starting up a raid round, new round starting in %i second...", client, restart);
+		CPrintToChatAll("{olive}[FF2]{default}%N is starting up a raid round, new round starting in %i second...", client, restart);
 		ServerCommand("mp_restartround %i", restart);
 	} else {
-		PrintToChatAll("%N is starting up a raid round for next round.", client);
+		CPrintToChatAll("{olive}[FF2]{default}%N is starting up a raid round for next round.", client);
 	}
 
 	return Plugin_Handled;
@@ -556,7 +557,7 @@ public Action AdminCmd_RaidRound(int client, int args) {
 
 public Action AdminCmd_UltraRound(int client, int args) {
 	if (g_Data.ultra) {
-		PrintToChat(client, "An ultra round is already queued up.");
+		CPrintToChat(client, "{olive}[FF2]{default}An ultra round is already queued up.");
 		return Plugin_Handled;
 	}
 
@@ -567,10 +568,10 @@ public Action AdminCmd_UltraRound(int client, int args) {
 
 	int restart = convar_RestartRound.IntValue;
 	if (restart > 0) {
-		PrintToChatAll("%N is starting up an ultra round, new round starting in %i second...", client, restart);
+		CPrintToChatAll("{olive}[FF2]{default}%N is starting up an ultra round, new round starting in %i second...", client, restart);
 		ServerCommand("mp_restartround %i", restart);
 	} else {
-		PrintToChatAll("%N is starting up an ultra round for next round.", client);
+		CPrintToChatAll("{olive}[FF2]{default}%N is starting up an ultra round for next round.", client);
 	}
 
 	return Plugin_Handled;
