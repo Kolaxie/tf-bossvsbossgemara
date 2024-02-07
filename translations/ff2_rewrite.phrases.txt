@@ -2,7 +2,7 @@
 {
 	"Prefix"
 	{
-		"en"		"{olive}[FF2]{default} "
+		"en"		"{green}[FF2]{default} "
 	}
 	"Available Commands"
 	{
