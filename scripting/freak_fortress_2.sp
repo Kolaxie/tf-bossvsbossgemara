@@ -14,6 +14,7 @@
 #include <dhooks>
 #include <tf2items>
 #include <tf2attributes>
+#include <debugger>
 #undef REQUIRE_EXTENSIONS
 #undef REQUIRE_PLUGIN
 #include <bvb-rounds>
@@ -300,20 +301,17 @@ public int Native_GetConfig(Handle plugin, int numParams) {
 public int Native_GetByName(Handle plugin, int numParams) {
 	int size;
 	GetNativeStringLength(1, size);
-	size++;
-	char[] name = new char[size];
-	GetNativeString(1, name, size);
+	
+	if (size < 1) {
+		return -1;
+	}
 
-	bool exact = GetNativeCell(2);
-	bool enabled = GetNativeCell(3);
-	int lang = GetNativeCell(4);
+	char[] name = new char[size + 1];
+	GetNativeString(1, name, size + 1);
 
-	GetNativeStringLength(5, size);
-	size++;
-	char[] str = new char[size];
-	GetNativeString(5, str, size);
+	int lang = GetNativeCell(2);
 
-	return Bosses_GetByName(name, exact, enabled, lang, str);
+	return Bosses_GetByName(name, lang);
 }
 
 public void OnPluginStart()

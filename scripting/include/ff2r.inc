@@ -292,7 +292,7 @@ stock bool FF2R_EmitBossSoundToAll(const char[] key, int boss, const char[] requ
 
 native int FF2R_Bosses_GetConfigLength();
 native ConfigMap FF2R_Bosses_GetConfig(int special);
-native int FF2R_Bosses_GetByName(const char[] name, bool exact = true, bool enabled = true, int lang = -1, const char[] string = "");
+native int FF2R_Bosses_GetByName(const char[] name, int lang = -1);
 
 /**
  *	Below is related to using ConfigMap, though cfgmap is not required for this include, needed for the below

@@ -65,7 +65,7 @@ public Action Bosses_DebugCacheCmd(int args)
 		}
 		else
 		{
-			special = Bosses_GetByName(buffer, false, _, GetServerLanguage());
+			special = Bosses_GetByName(buffer, GetServerLanguage());
 		}
 		
 		if(special == -1)
@@ -120,7 +120,7 @@ public Action Bosses_MakeBossCmd(int client, int args)
 			}
 			else
 			{
-				special = Bosses_GetByName(buffer, false, _, client ? GetClientLanguage(client) : GetServerLanguage());
+				special = Bosses_GetByName(buffer, client ? GetClientLanguage(client) : GetServerLanguage());
 			}
 		}
 		
@@ -1407,66 +1407,114 @@ int Bosses_GetConfigLength()
 	return BossList.Length;
 }
 
-int Bosses_GetByName(const char[] name, bool exact = true, bool enabled = true, int lang = -1, const char[] string = "name")
+int Bosses_GetByName(const char[] name, int lang = -1)
 {
-	int similarBoss = -1;
-	if(BossList)
+	if (BossList == null || BossList.Length == 0) {
+		return -1;
+	}
+
+	char language[5];
+	if (lang != -1) {
+		GetLanguageInfo(lang, language, sizeof(language));
+	}
+
+	int bossIndex = -1;
+	
+	char key[64]; char buffer[64]; ConfigMap cfg;
+	for (int i = 0; i < BossList.Length; i++)
 	{
-		int length = BossList.Length;
-		int size1 = exact ? 0 : strlen(name);
-		int similarChars;
-		
-		char language[5];
-		if(lang != -1)
-			GetLanguageInfo(lang, language, sizeof(language));
-		
-		bool found;
-		for(int i; i < length; i++)
+		key[0] = '\0';
+		buffer[0] = '\0';
+		cfg = null;
+
+		if ((cfg = BossList.Get(i)) == null) {
+			continue;
+		}
+
+		if (lang != -1) {
+			Format(key, sizeof(key), "name_%s", language);
+		} else {
+			strcopy(key, sizeof(key), "name");
+		}
+
+		if (cfg.Get(key, buffer, sizeof(buffer)) > 0 && StrEqual(name, buffer, false)) {
+			return i;
+		}
+	}
+
+	return bossIndex;
+}
+
+int Bosses_GetByKey(const char[] name, bool exact = true, bool enabled = true, int lang = -1, const char[] key)
+{
+	if (BossList == null || BossList.Length == 0) {
+		return -1;
+	}
+
+	int size1 = exact ? 0 : strlen(name);
+	int similarChars;
+	
+	char language[5];
+	if (lang != -1) {
+		GetLanguageInfo(lang, language, sizeof(language));
+	}
+
+	int bossIndex = -1;
+	
+	bool found; char buffer[64]; ConfigMap cfg;
+	for (int i = 0; i < BossList.Length; i++)
+	{
+		found = false;
+		buffer[0] = '\0';
+		cfg = BossList.Get(i);
+
+		if (!enabled || (cfg.GetBool("enabled", found) && found))
 		{
-			ConfigMap cfg = BossList.Get(i);
-			if(!enabled || (cfg.GetBool("enabled", found) && found))
+			if (lang != -1)
 			{
-				found = false;
-				static char buffer[64];
-				if(lang != -1)
-				{
-					Format(buffer, sizeof(buffer), "%s_%s", string, language);
-					found = view_as<bool>(cfg.Get(buffer, buffer, sizeof(buffer)));
+				Format(buffer, sizeof(buffer), "%s_%s", key, language);
+				found = view_as<bool>(cfg.Get(buffer, buffer, sizeof(buffer)));
+			}
+
+			if (found || cfg.Get(key, buffer, sizeof(buffer)))
+			{
+				if (StrEqual(name, buffer, false)) {
+					return i;
 				}
 				
-				if(found || cfg.Get(string, buffer, sizeof(buffer)))
+				if (!exact)
 				{
-					if(StrEqual(name, buffer, false))
-						return i;
+					int bump = StrContains(buffer, name, false);
+
+					if (bump == -1) {
+						bump = 0;
+					}
 					
-					if(!exact)
+					int size2 = strlen(buffer) - bump;
+
+					if (size2 > size1) {
+						size2 = size1;
+					}
+					
+					int amount;
+					for (int c; c < size2; c++)
 					{
-						int bump = StrContains(buffer, name, false);
-						if(bump == -1)
-							bump = 0;
-						
-						int size2 = strlen(buffer) - bump;
-						if(size2 > size1)
-							size2 = size1;
-						
-						int amount;
-						for(int c; c < size2; c++)
-						{
-							if(CharToLower(name[c]) == CharToLower(buffer[c + bump]))
-								amount++;
+						if(CharToLower(name[c]) == CharToLower(buffer[c + bump])) {
+							amount++;
 						}
-						
-						if(amount > similarChars)
-						{
-							similarChars = amount;
-							similarBoss = i;
-						}
+					}
+					
+					if (amount > similarChars)
+					{
+						similarChars = amount;
+						bossIndex = i;
 					}
 				}
 			}
 		}
 	}
-	return similarBoss;
+
+	return bossIndex;
 }
 
 bool Bosses_CanAccessBoss(int client, int special, bool playing = false, int team = -1, bool enabled = true, bool &preview = false)

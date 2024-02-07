@@ -6,8 +6,9 @@
 #include <morecolors>
 #include <textstore>
 #include <ff2r>
+#include <debugger>
 
-#define TEXTSTORE_ITEM "Raid - "
+#define TEXTSTORE_ITEM "Raid Boss - "
 
 ConVar convar_Enabled;
 ConVar convar_Chance;
@@ -17,6 +18,7 @@ ConVar convar_Cooldown;
 ConVar convar_RestartRound;
 
 Database g_Database;
+bool g_IsSQLite;
 bool g_IsFF2Loaded;
 
 enum struct PluginData {
@@ -155,9 +157,9 @@ public void OnSQLConnect(Database db, const char[] error, any data) {
 	char identifier[64];
 	g_Database.Driver.GetIdentifier(identifier, sizeof(identifier));
 
-	bool sqlite = StrEqual(identifier, "sqlite");
+	g_IsSQLite = StrEqual(identifier, "sqlite");
 
-	if (sqlite) {
+	if (g_IsSQLite) {
 		g_Database.Query(OnCreateTable, "CREATE TABLE IF NOT EXISTS bvb_specialrounds (id INTEGER PRIMARY KEY AUTOINCREMENT, accountid INTEGER UNIQUE, cooldown TIMESTAMP);", DBPrio_Low);
 	} else {
 		g_Database.Query(OnCreateTable, "CREATE TABLE IF NOT EXISTS bvb_specialrounds (id INTEGER PRIMARY KEY AUTO_INCREMENT, accountid BIGINT(64) UNIQUE, cooldown TIMESTAMP);", DBPrio_Low);
@@ -204,6 +206,12 @@ public void OnLoadCooldown(Database db, DBResultSet results, const char[] error,
 
 public void OnClientDisconnect_Post(int client) {
 	g_Cooldown[client] = 0.0;
+
+	if (g_Data.nextroundclient > 0 && GetClientOfUserId(g_Data.nextroundclient) == client) {
+		g_Data.nextround = false;
+		g_Data.nextroundclient = 0;
+		g_Data.nextroundboss = 0;
+	}
 }
 
 public void OnMapEnd() {
@@ -227,13 +235,14 @@ public void FF2R_OnRoundSetup() {
 	if (g_Data.nextround) {
 		g_Data.nextround = false;
 
-		g_Data.client = g_Data.nextroundclient;
+		g_Data.client = GetClientOfUserId(g_Data.nextroundclient);
 		g_Data.boss = g_Data.nextroundboss;
 
 		g_Data.nextroundclient = 0;
 		g_Data.nextroundboss = 0;
 
 		enabled = true;
+		PrintToChatAll("SPECIAL ROUND: %N is the boss!", g_Data.client);
 	}
 
 	// If there's no setup for next round, make a random chance for it to happen this round.
@@ -257,6 +266,7 @@ public void FF2R_OnRoundSetup() {
 		}
 
 		enabled = true;
+		PrintToChatAll("SPECIAL ROUND: %N is the boss!", g_Data.client);
 	}
 
 	g_Data.enabled = enabled;
@@ -319,16 +329,14 @@ public ItemResult TextStore_Item(int client, bool equipped, KeyValues item, int 
 	if (!convar_Enabled.BoolValue) {
 		return Item_None;
 	}
-
+	
 	if (StrContains(name, TEXTSTORE_ITEM, false) == 0) {
 		char boss[64];
 		item.GetString("boss", boss, sizeof(boss));
 		
-		int bossIndex;
+		int bossIndex = -1;
 		if (g_IsFF2Loaded) {
-			bossIndex = FF2R_Bosses_GetByName(boss, false, _, GetServerLanguage());
-		} else {
-			bossIndex = -1;
+			bossIndex = FF2R_Bosses_GetByName(boss);
 		}
 
 		if (bossIndex == -1) {
@@ -358,13 +366,17 @@ public ItemResult TextStore_Item(int client, bool equipped, KeyValues item, int 
 		}
 
 		g_Data.nextround = true;
-		g_Data.nextroundclient = client;
+		g_Data.nextroundclient = GetClientUserId(client);
 		g_Data.nextroundboss = bossIndex;
 		g_Cooldown[client] = GetGameTime() + cooldown;
 
 		if (g_Database != null) {
 			char query[256];
-			g_Database.Format(query, sizeof(query), "INSERT OR REPLACE INTO bvb_specialrounds (accountid, cooldown) VALUES (%d, %d);", GetSteamAccountID(client), GetGameTime() + cooldown);
+			if (g_IsSQLite) {
+				g_Database.Format(query, sizeof(query), "INSERT OR REPLACE INTO bvb_specialrounds (accountid, cooldown) VALUES (%d, %d);", GetSteamAccountID(client), g_Cooldown[client]);
+			} else {
+				g_Database.Format(query, sizeof(query), "INSERT INTO bvb_specialrounds (accountid, cooldown) VALUES (%d, %d) ON DUPLICATE KEY UPDATE cooldown = VALUES(cooldown);;", GetSteamAccountID(client), g_Cooldown[client]);
+			}
 			g_Database.Query(OnStoreCooldown, query, _, DBPrio_Low);
 		}
 
@@ -528,7 +540,7 @@ public Action AdminCmd_RaidRound(int client, int args) {
 	}
 
 	g_Data.nextround = true;
-	g_Data.nextroundclient = GetRandomPlayer()	;
+	g_Data.nextroundclient = GetClientUserId(GetRandomPlayer());
 	g_Data.nextroundboss = GetRandomBoss(false);
 	
 	int restart = convar_RestartRound.IntValue;
@@ -549,7 +561,7 @@ public Action AdminCmd_UltraRound(int client, int args) {
 	}
 
 	g_Data.nextround = true;
-	g_Data.nextroundclient = GetRandomPlayer()	;
+	g_Data.nextroundclient = GetClientUserId(GetRandomPlayer());
 	g_Data.nextroundboss = GetRandomBoss(false);
 	g_Data.forceultra = true;
 

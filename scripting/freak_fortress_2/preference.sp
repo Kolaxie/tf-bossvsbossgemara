@@ -106,7 +106,7 @@ void Preference_AddBoss(int client, const char[] name)
 	}
 	else
 	{
-		int special = Bosses_GetByName(name, true, false, _, "filename");
+		int special = Bosses_GetByKey(name, true, false, _, "filename");
 		if(special != -1 && Bosses_CanAccessBoss(client, special, false, _, false))
 			BossListing[client].Push(special);
 	}
@@ -233,7 +233,7 @@ int Preference_PickBoss(int client, int team = -1)
 				
 				if(length > 1 && Client(client).GetLastPlayed(buffer, sizeof(buffer)))
 				{
-					count = list.FindValue(Bosses_GetByName(buffer, true, _, _, "filename"));
+					count = list.FindValue(Bosses_GetByKey(buffer, true, _, _, "filename"));
 					if(count != -1)
 					{
 						list.Erase(count);
@@ -326,7 +326,7 @@ public Action Preference_BossMenuCmd(int client, int args)
 			}
 			else
 			{
-				special = Bosses_GetByName(buffer, false, false, GetClientLanguage(client));
+				special = Bosses_GetByName(buffer, GetClientLanguage(client));
 			}
 			
 			if(Bosses_CanAccessBoss(client, special, false, _, false))
@@ -431,7 +431,7 @@ public Action Preference_BossMenuCmd(int client, int args)
 		}
 		else
 		{
-			ViewingBoss[client] = Bosses_GetByName(buffer, false, false, GetClientLanguage(client));
+			ViewingBoss[client] = Bosses_GetByName(buffer, GetClientLanguage(client));
 		}
 		
 		Menu_Command(client);
@@ -1504,7 +1504,7 @@ public Action Preference_ForceBossCmd(int client, int args)
 		}
 		else
 		{
-			special = Bosses_GetByName(name, false, _, lang);
+			special = Bosses_GetByName(name, lang);
 		}
 		
 		if(special == -1)
