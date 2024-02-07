@@ -267,7 +267,7 @@ public void FF2R_OnRoundSetup() {
 		}
 
 		enabled = true;
-		PrintCenterText("An Ultra Boss has appeared! Chaos inbound!");		
+		PrintCenterTextAll("An Ultra Boss has appeared! Chaos inbound!");		
 	}
 
 	g_Data.enabled = enabled;
