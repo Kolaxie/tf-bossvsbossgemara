@@ -227,10 +227,10 @@ void Gamemode_RoundSetup()
 
 					bool raid;
 
-					for(int i; i < total; i++)
+					for (int i = 0; i < total; i++)
 					{
 						if (ultra) {
-							if (i == ultraclient) {
+							if (clients[i] == ultraclient) {
 								ChangeClientTeam(clients[i], TFTeam_Blue);
 								Bosses_CreateFromSpecial(clients[i], ultraboss, TFTeam_Blue);
 							} else {
@@ -244,7 +244,7 @@ void Gamemode_RoundSetup()
 								}
 							}
 						} else {
-							if (i == client) {
+							if (clients[i] == client) {
 								ChangeClientTeam(clients[i], TFTeam_Blue);
 								Bosses_CreateFromSpecial(clients[i], boss, TFTeam_Blue);
 							} else {
