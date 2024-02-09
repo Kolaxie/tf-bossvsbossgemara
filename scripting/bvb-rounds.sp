@@ -16,7 +16,6 @@ ConVar convar_Chance;
 ConVar convar_Chance_Ultra;
 ConVar convar_Max;
 ConVar convar_Cooldown;
-ConVar convar_RestartRound;
 
 Database g_Database;
 bool g_IsSQLite;
@@ -110,7 +109,6 @@ public void OnPluginStart() {
 	convar_Chance_Ultra = CreateConVar("sm_bvb_rounds_chance_ultra", "0.25", "What's the chance of a special round being an ultra round?\n(0.0 = 0%, 1.0 = 100%, 0.50 = 50%)", FCVAR_NOTIFY, true, 0.0, true, 1.0);
 	convar_Max = CreateConVar("sm_bvb_rounds_max", "1", "What's the maximum amount of rounds available per map for a special round to occur?", FCVAR_NOTIFY, true, 0.0);
 	convar_Cooldown = CreateConVar("sm_bvb_rounds_cooldown", "10800", "What's the cooldown a player should have for manually starting a round in seconds?\n(60 seconds = 1 minute)", FCVAR_NOTIFY, true, 0.0);
-	convar_RestartRound = CreateConVar("sm_bvb_rounds_restart", "3", "Should the round restart if a raid or ultra is forced?\n(0 = disabled)", FCVAR_NOTIFY, true, 0.0);
 	//AutoExecConfig();
 
 	g_Data.Init();
@@ -351,7 +349,7 @@ public ItemResult TextStore_Item(int client, bool equipped, KeyValues item, int 
 		}
 
 		float cooldown = convar_Cooldown.FloatValue;
-		if (g_Cooldown[client] > 0.0) {
+		if (g_Cooldown[client] > 0.0 && !CheckCommandAccess(client, "", ADMFLAG_ROOT, true)) {
 			float time = g_Cooldown[client] - GetGameTime();
 			if (time > 0.0) {
 				char sTime[32];
@@ -544,13 +542,7 @@ public Action AdminCmd_RaidRound(int client, int args) {
 	g_Data.nextroundclient = GetClientUserId(GetRandomPlayer());
 	g_Data.nextroundboss = GetRandomBoss(false);
 	
-	int restart = convar_RestartRound.IntValue;
-	if (restart > 0) {
-		CPrintToChatAll("{green}[FF2]{default} %N is starting up a raid round, new round starting in %i second...", client, restart);
-		ServerCommand("mp_restartround %i", restart);
-	} else {
-		CPrintToChatAll("{green}[FF2]{default} %N is starting up a raid round for next round.", client);
-	}
+	CPrintToChatAll("{green}[FF2]{default} %N is starting up a raid round for next round.", client);
 
 	return Plugin_Handled;
 }
@@ -565,14 +557,8 @@ public Action AdminCmd_UltraRound(int client, int args) {
 	g_Data.nextroundclient = GetClientUserId(GetRandomPlayer());
 	g_Data.nextroundboss = GetRandomBoss(false);
 	g_Data.forceultra = true;
-
-	int restart = convar_RestartRound.IntValue;
-	if (restart > 0) {
-		CPrintToChatAll("{green}[FF2]{default} %N is starting up an ultra round, new round starting in %i second...", client, restart);
-		ServerCommand("mp_restartround %i", restart);
-	} else {
-		CPrintToChatAll("{green}[FF2]{default} %N is starting up an ultra round for next round.", client);
-	}
+	
+	CPrintToChatAll("{green}[FF2]{default} %N is starting up an ultra round for next round.", client);
 
 	return Plugin_Handled;
 }
