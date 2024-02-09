@@ -225,32 +225,26 @@ void Gamemode_RoundSetup()
 					// PrintToChatAll("Ultra Client: %d", ultraclient);
 					// PrintToChatAll("Ultra Boss: %d", ultraboss);
 
-					bool raid;
+					int currentRoom = FF2Party_GetParty(clients[0]);
+					int team = TFTeam_Red;
 
 					for (int i = 0; i < total; i++)
 					{
-						if (ultra) {
-							if (clients[i] == ultraclient) {
-								ChangeClientTeam(clients[i], TFTeam_Blue);
-								Bosses_CreateFromSpecial(clients[i], ultraboss, TFTeam_Blue);
-							} else {
-								if (!raid) {
-									raid = true;
-									ChangeClientTeam(clients[i], TFTeam_Red);
-									Bosses_CreateFromSpecial(clients[i], boss, TFTeam_Red);
-								} else {
-									ChangeClientTeam(clients[i], TFTeam_Red);
-									Bosses_CreateFromSpecial(clients[i], Preference_PickBoss(clients[i], TFTeam_Red), TFTeam_Red);
-								}
-							}
+						int clientRoom = FF2Party_GetParty(clients[i]);
+						if (clientRoom != currentRoom) {
+							team = team == TFTeam_Red ? TFTeam_Blue : TFTeam_Red;
+							currentRoom = clientRoom;
+						}
+
+						if (ultra && clients[i] == ultraclient) {
+							ChangeClientTeam(clients[i], TFTeam_Blue);
+							Bosses_CreateFromSpecial(clients[i], ultraboss, TFTeam_Blue);
+						} else if (!ultra && clients[i] == client) {
+							ChangeClientTeam(clients[i], TFTeam_Blue);
+							Bosses_CreateFromSpecial(clients[i], boss, TFTeam_Blue);
 						} else {
-							if (clients[i] == client) {
-								ChangeClientTeam(clients[i], TFTeam_Blue);
-								Bosses_CreateFromSpecial(clients[i], boss, TFTeam_Blue);
-							} else {
-								ChangeClientTeam(clients[i], TFTeam_Red);
-								Bosses_CreateFromSpecial(clients[i], Preference_PickBoss(clients[i], TFTeam_Red), TFTeam_Red);
-							}
+							ChangeClientTeam(clients[i], team);
+							Bosses_CreateFromSpecial(clients[i], Preference_PickBoss(clients[i], team), team);
 						}
 					}
 				}
@@ -279,7 +273,20 @@ void Gamemode_RoundSetup()
 					}
 
 					if (g_FF2Party) {
-						SortCustom1D(clients, total, OnSortBasedOnParty);
+						team = TFTeam_Red + (GetTime() % 2);
+						int currentRoom = FF2Party_GetParty(clients[0]);
+						for(int i = 0; i < total; i++)
+						{
+							int clientRoom = FF2Party_GetParty(clients[i]);
+							if (clientRoom != currentRoom) {
+								team = team == TFTeam_Red ? TFTeam_Blue : TFTeam_Red;
+								currentRoom = clientRoom;
+							}
+
+							SetEntProp(clients[i], Prop_Send, "m_lifeState", 2);
+							ChangeClientTeam(clients[i], team);
+							SetEntProp(clients[i], Prop_Send, "m_lifeState", 0);
+						}
 					}
 					
 					total = Preference_GetBossQueue(clients, MaxClients, false, TFTeam_Red);
@@ -387,32 +394,6 @@ void Gamemode_RoundSetup()
 			}
 		}
 	}
-}
-
-public int OnSortBasedOnParty(int elem1, int elem2, const int[] array, Handle hndl) {
-	int client1 = array[elem1];
-	int client2 = array[elem2];
-
-	int room1 = FF2Party_GetParty(client1);
-	int room2 = FF2Party_GetParty(client2);
-
-	if (room1 == NO_ROOM && room2 == NO_ROOM) {
-		return 0;
-	}
-
-	if (room1 == room2) {
-		return 0;
-	}
-
-	if (room1 == NO_ROOM) {
-		return 1;
-	}
-
-	if (room2 == NO_ROOM) {
-		return -1;
-	}
-
-	return room1 - room2;
 }
 
 public void TF2_OnWaitingForPlayersStart()
