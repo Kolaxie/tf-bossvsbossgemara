@@ -225,26 +225,39 @@ void Gamemode_RoundSetup()
 					// PrintToChatAll("Ultra Client: %d", ultraclient);
 					// PrintToChatAll("Ultra Boss: %d", ultraboss);
 
-					int currentRoom = FF2Party_GetParty(clients[0]);
-					int team = TFTeam_Red;
+					if (g_FF2Party) {
+						int currentRoom = FF2Party_GetParty(clients[0]);
+						int team = TFTeam_Red;
 
-					for (int i = 0; i < total; i++)
-					{
-						int clientRoom = FF2Party_GetParty(clients[i]);
-						if (clientRoom != currentRoom) {
-							team = team == TFTeam_Red ? TFTeam_Blue : TFTeam_Red;
-							currentRoom = clientRoom;
+						for (int i = 0; i < total; i++)
+						{
+							int clientRoom = FF2Party_GetParty(clients[i]);
+							if (clientRoom != currentRoom) {
+								team = team == TFTeam_Red ? TFTeam_Blue : TFTeam_Red;
+								currentRoom = clientRoom;
+							}
+
+							if (ultra && clients[i] == ultraclient) {
+								Bosses_CreateFromSpecial(clients[i], ultraboss, TFTeam_Blue);
+							} else if (clients[i] == client) {
+								Bosses_CreateFromSpecial(clients[i], boss, (ultra) ? TFTeam_Red : TFTeam_Blue);
+							} else {
+								Bosses_CreateFromSpecial(clients[i], Preference_PickBoss(clients[i], team), team);
+							}
 						}
+					} else {
+						int team = TFTeam_Red + (GetTime() % 2);
+						for (int i = 0; i < total; i++)
+						{
+							if (ultra && clients[i] == ultraclient) {
+								Bosses_CreateFromSpecial(clients[i], ultraboss, TFTeam_Blue);
+							} else if (clients[i] == client) {
+								Bosses_CreateFromSpecial(clients[i], boss, (ultra) ? TFTeam_Red : TFTeam_Blue);
+							} else {
+								Bosses_CreateFromSpecial(clients[i], Preference_PickBoss(clients[i], team), team);
+							}
 
-						if (ultra && clients[i] == ultraclient) {
-							ChangeClientTeam(clients[i], TFTeam_Blue);
-							Bosses_CreateFromSpecial(clients[i], ultraboss, TFTeam_Blue);
-						} else if (!ultra && clients[i] == client) {
-							ChangeClientTeam(clients[i], TFTeam_Blue);
-							Bosses_CreateFromSpecial(clients[i], boss, TFTeam_Blue);
-						} else {
-							ChangeClientTeam(clients[i], team);
-							Bosses_CreateFromSpecial(clients[i], Preference_PickBoss(clients[i], team), team);
+							team = team == TFTeam_Red ? TFTeam_Blue : TFTeam_Red;
 						}
 					}
 				}
