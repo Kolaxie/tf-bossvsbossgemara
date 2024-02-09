@@ -166,16 +166,16 @@ public int MenuHandler_Parties(Menu menu, MenuAction action, int param1, int par
 				return 0;
 			}
 
-			if (g_Party[room].players.Length >= convar_MaxMembers.IntValue) {
-				PrintToChat(param1, "This room is full.");
-				OpenPartiesMenu(param1);
-				return 0;
-			}
-
 			if (g_Party[room].IsInParty(param1)) {
 				g_Party[room].RemovePlayer(param1);
 				PrintToChat(param1, "You have left the room.");
 			} else {
+
+				if (g_Party[room].players.Length >= convar_MaxMembers.IntValue) {
+					PrintToChat(param1, "This room is full.");
+					OpenPartiesMenu(param1);
+					return 0;
+				}
 
 				for (int i = 0; i < g_TotalParties; i++) {
 					g_Party[i].RemovePlayer(param1);
