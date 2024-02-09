@@ -176,6 +176,11 @@ public int MenuHandler_Parties(Menu menu, MenuAction action, int param1, int par
 				g_Party[room].RemovePlayer(param1);
 				PrintToChat(param1, "You have left the room.");
 			} else {
+
+				for (int i = 0; i < g_TotalParties; i++) {
+					g_Party[i].RemovePlayer(param1);
+				}
+
 				g_Party[room].AddPlayer(param1);
 				PrintToChat(param1, "You have joined the room.");
 			}
@@ -215,4 +220,10 @@ public int Native_GetParty(Handle plugin, int numParams) {
 	}
 
 	return NO_ROOM;
+}
+
+public void OnClientDisconnect_Post(int client) {
+	for (int i = 0; i < g_TotalParties; i++) {
+		g_Party[i].RemovePlayer(client);
+	}
 }
