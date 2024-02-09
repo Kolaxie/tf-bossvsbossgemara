@@ -18,6 +18,7 @@
 #undef REQUIRE_EXTENSIONS
 #undef REQUIRE_PLUGIN
 #include <bvb-rounds>
+#include <ff2-party>
 
 #pragma semicolon 1
 #pragma newdecls required
@@ -226,6 +227,7 @@ Handle ThisPlugin;
 
 GlobalForward g_Forward_OnRoundSetup;
 bool g_BvBRounds;
+bool g_FF2Party;
 
 #include "freak_fortress_2/client.sp"
 #include "freak_fortress_2/stocks.sp"
@@ -354,6 +356,7 @@ public void OnAllPluginsLoaded()
 	Configs_AllPluginsLoaded();
 
 	g_BvBRounds = LibraryExists("bvb-rounds");
+	g_FF2Party = LibraryExists("ff2-party");
 }
 
 public void OnMapInit()
@@ -414,6 +417,8 @@ public void OnLibraryAdded(const char[] name)
 
 	if (StrEqual(name, "bvb-rounds")) {
 		g_BvBRounds = true;
+	} else if (StrEqual(name, "ff2-party")) {
+		g_FF2Party = true;
 	}
 }
 
@@ -427,6 +432,8 @@ public void OnLibraryRemoved(const char[] name)
 
 	if (StrEqual(name, "bvb-rounds")) {
 		g_BvBRounds = false;
+	} else if (StrEqual(name, "ff2-party")) {
+		g_FF2Party = false;
 	}
 }
 

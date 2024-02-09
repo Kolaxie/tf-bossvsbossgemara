@@ -256,29 +256,33 @@ void Gamemode_RoundSetup()
 				}
 			} else if(bosses > 0)	// Boss vs Boss
 			{
-				int reds;
-				int[] red = new int[MaxClients];
+				int total;
+				int[] clients = new int[MaxClients];
 				for(int client = 1; client <= MaxClients; client++)
 				{
 					if(IsClientInGame(client) && GetClientTeam(client) > TFTeam_Spectator)
-						red[reds++] = client;
+						clients[total++] = client;
 				}
 					
-				if(reds)
+				if(total)
 				{
-					SortIntegers(red, reds, Sort_Random);
+					SortIntegers(clients, total, Sort_Random);
 					
 					int team = TFTeam_Red + (GetTime() % 2);
-					for(int i; i < reds; i++)
+					for(int i; i < total; i++)
 					{
-						SetEntProp(red[i], Prop_Send, "m_lifeState", 2);
-						ChangeClientTeam(red[i], team);
-						SetEntProp(red[i], Prop_Send, "m_lifeState", 0);
+						SetEntProp(clients[i], Prop_Send, "m_lifeState", 2);
+						ChangeClientTeam(clients[i], team);
+						SetEntProp(clients[i], Prop_Send, "m_lifeState", 0);
 						
 						team = team == TFTeam_Red ? TFTeam_Blue : TFTeam_Red;
 					}
+
+					if (g_FF2Party) {
+						SortCustom1D(clients, total, OnSortBasedOnParty);
+					}
 					
-					reds = Preference_GetBossQueue(red, MaxClients, false, TFTeam_Red);
+					total = Preference_GetBossQueue(clients, MaxClients, false, TFTeam_Red);
 					
 					int[] blu = new int[MaxClients];
 					int blus = Preference_GetBossQueue(blu, MaxClients, false, TFTeam_Blue);
@@ -292,12 +296,12 @@ void Gamemode_RoundSetup()
 						}
 					}
 					
-					for(int i; i < bosses && i < reds; i++)
+					for(int i; i < bosses && i < total; i++)
 					{
-						if(!Client(red[i]).IsBoss)
+						if(!Client(clients[i]).IsBoss)
 						{
-							Bosses_CreateFromSpecial(red[i], Preference_PickBoss(red[i], TFTeam_Red), TFTeam_Red);
-							Client(red[i]).Queue = 0;
+							Bosses_CreateFromSpecial(clients[i], Preference_PickBoss(clients[i], TFTeam_Red), TFTeam_Red);
+							Client(clients[i]).Queue = 0;
 						}
 					}
 				}
@@ -383,6 +387,32 @@ void Gamemode_RoundSetup()
 			}
 		}
 	}
+}
+
+public int OnSortBasedOnParty(int elem1, int elem2, const int[] array, Handle hndl) {
+	int client1 = array[elem1];
+	int client2 = array[elem2];
+
+	int room1 = FF2Party_GetParty(client1);
+	int room2 = FF2Party_GetParty(client2);
+
+	if (room1 == NO_ROOM && room2 == NO_ROOM) {
+		return 0;
+	}
+
+	if (room1 == room2) {
+		return 0;
+	}
+
+	if (room1 == NO_ROOM) {
+		return 1;
+	}
+
+	if (room2 == NO_ROOM) {
+		return -1;
+	}
+
+	return room1 - room2;
 }
 
 public void TF2_OnWaitingForPlayersStart()
