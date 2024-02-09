@@ -1704,33 +1704,8 @@ void Bosses_CreateFromConfig(int client, ConfigMap cfg, int team, int leader = 0
 	
 	if(Client(client).Cfg.GetInt("companion", i))
 	{
-		ArrayList players;
-		if (g_FF2Party) {
-			int room = FF2Party_GetParty(client);
-
-			if (room != NO_ROOM) {
-				players = FF2Party_GetClients(room);
-			}
-		}
-
-		int companion;
 		bool disband;
-		
-		if (g_FF2Party && players.Length > 1) {
-			int total;
-			int[] clients = new int[MaxClients];
-
-			for (int p = 0; p < players.Length; p++) {
-				if (players.Get(p) != client) {
-					clients[total++] = players.Get(p);
-				}
-			}
-
-			companion = clients[GetRandomInt(0, total - 1)];
-		} else {
-			companion = Preference_GetCompanion(client, i, team, disband);
-		}
-		
+		int companion = Preference_GetCompanion(client, i, team, disband);
 		if(companion)
 		{
 			Bosses_CreateFromSpecial(companion, i, team, client);
