@@ -241,6 +241,7 @@ public void FF2R_OnRoundSetup() {
 		g_Data.nextroundboss = 0;
 
 		enabled = true;
+		CPrintToChatAll("{green}[FF2]{default} A Raid Boss has appeared! Goodluck!");		
 		PrintCenterTextAll("A Raid Boss has appeared! Goodluck!");
 	}
 
@@ -265,6 +266,7 @@ public void FF2R_OnRoundSetup() {
 		}
 
 		enabled = true;
+		CPrintToChatAll("{green}[FF2]{default} An Ultra Boss has appeared! Chaos inbound!");
 		PrintCenterTextAll("An Ultra Boss has appeared! Chaos inbound!");		
 	}
 
