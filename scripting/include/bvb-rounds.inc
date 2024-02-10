@@ -3,6 +3,7 @@
 #endif
 #define _bvb_rounds_included
 
+native bool BVBRounds_IsEnabled();
 native bool BVBRounds_IsSpecialRound();
 native int BVBRounds_GetClient();
 native int BVBRounds_GetPickedBoss();
@@ -24,6 +25,7 @@ public SharedPlugin __pl_bvb_rounds =
 #if !defined REQUIRE_PLUGIN
 public void __pl_bvb_rounds_SetNTVOptional()
 {
+	MarkNativeAsOptional("BVBRounds_IsEnabled");
 	MarkNativeAsOptional("BVBRounds_IsSpecialRound");
 	MarkNativeAsOptional("BVBRounds_GetClient");
 	MarkNativeAsOptional("BVBRounds_GetPickedBoss");

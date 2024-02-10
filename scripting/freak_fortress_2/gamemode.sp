@@ -178,7 +178,7 @@ void Gamemode_RoundSetup()
 			CreateTimer(preround - 0.1, Gamemode_SetControlPoint, _, TIMER_FLAG_NO_MAPCHANGE);
 			
 			int bosses = Cvar[BossVsBoss].IntValue;
-			if (g_BvBRounds && BVBRounds_IsSpecialRound()) {
+			if (g_BvBRounds && BVBRounds_IsEnabled() && BVBRounds_IsSpecialRound()) {
 				int total;
 				int[] clients = new int[MaxClients];
 				for(int client = 1; client <= MaxClients; client++)

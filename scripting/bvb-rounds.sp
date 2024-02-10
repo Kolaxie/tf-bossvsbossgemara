@@ -90,6 +90,7 @@ public Plugin myinfo = {
 public APLRes AskPluginLoad2(Handle myself, bool late, char[] error, int err_max) {
 	RegPluginLibrary("bvb-rounds");
 
+	CreateNative("BVBRounds_IsEnabled", Native_IsEnabled);
 	CreateNative("BVBRounds_IsSpecialRound", Native_IsSpecialRound);
 	CreateNative("BVBRounds_GetClient", Native_GetClient);
 	CreateNative("BVBRounds_GetPickedBoss", Native_GetPickedBoss);
@@ -437,6 +438,10 @@ void FormatSeconds(float seconds, char[] buffer, int maxlength, const char[] for
 	ReplaceString(buffer, maxlength, "%H", strlen(sHour) > 0 ? sHour : "00");
 	ReplaceString(buffer, maxlength, "%M", strlen(sMinute) > 0 ? sMinute : "00");
 	ReplaceString(buffer, maxlength, "%S", strlen(sSeconds) > 0 ? sSeconds : "00");
+}
+
+public int Native_IsEnabled(Handle plugin, int numParams) {
+	return convar_Enabled.BoolValue;
 }
 
 public int Native_IsSpecialRound(Handle plugin, int numParams) {

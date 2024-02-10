@@ -63,6 +63,7 @@ public Plugin myinfo = {
 public APLRes AskPluginLoad2(Handle myself, bool late, char[] error, int err_max) {
 	RegPluginLibrary("ff2-party");
 
+	CreateNative("FF2Party_IsEnabled", Native_IsEnabled);
 	CreateNative("FF2Party_GetClients", Native_GetClients);
 	CreateNative("FF2Party_GetParty", Native_GetParty);
 
@@ -194,6 +195,10 @@ public int MenuHandler_Parties(Menu menu, MenuAction action, int param1, int par
 	}
 	
 	return 0;
+}
+
+public int Native_IsEnabled(Handle plugin, int numParams) {
+	return convar_Enabled.BoolValue;
 }
 
 public int Native_GetClients(Handle plugin, int numParams) {

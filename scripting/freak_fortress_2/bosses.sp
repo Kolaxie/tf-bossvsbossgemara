@@ -1705,7 +1705,7 @@ void Bosses_CreateFromConfig(int client, ConfigMap cfg, int team, int leader = 0
 	if(Client(client).Cfg.GetInt("companion", i))
 	{
 		ArrayList players;
-		if (g_FF2Party) {
+		if (g_FF2Party && FF2Party_IsEnabled()) {
 			int room = FF2Party_GetParty(client);
 
 			if (room != NO_ROOM) {
@@ -1716,7 +1716,7 @@ void Bosses_CreateFromConfig(int client, ConfigMap cfg, int team, int leader = 0
 		int companion;
 		bool disband;
 		
-		if (g_FF2Party && players.Length > 1) {
+		if (g_FF2Party && FF2Party_IsEnabled() && players.Length > 1) {
 			int total;
 			int[] clients = new int[MaxClients];
 
