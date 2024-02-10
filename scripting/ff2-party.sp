@@ -147,7 +147,7 @@ public int MenuHandler_Parties(Menu menu, MenuAction action, int param1, int par
 				return itemdraw;
 			}
 
-			if (g_Party[room].players.Length >= convar_MaxMembers.IntValue) {
+			if (g_Party[room].players.Length >= convar_MaxMembers.IntValue && !g_Party[room].IsInParty(param1)) {
 				return ITEMDRAW_DISABLED;
 			}
 
