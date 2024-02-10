@@ -276,23 +276,6 @@ void Gamemode_RoundSetup()
 						
 						team = team == TFTeam_Red ? TFTeam_Blue : TFTeam_Red;
 					}
-
-					if (g_FF2Party) {
-						team = TFTeam_Red + (GetTime() % 2);
-						int currentRoom = FF2Party_GetParty(clients[0]);
-						for(int i = 0; i < total; i++)
-						{
-							int clientRoom = FF2Party_GetParty(clients[i]);
-							if (clientRoom != currentRoom) {
-								team = team == TFTeam_Red ? TFTeam_Blue : TFTeam_Red;
-								currentRoom = clientRoom;
-							}
-
-							SetEntProp(clients[i], Prop_Send, "m_lifeState", 2);
-							ChangeClientTeam(clients[i], team);
-							SetEntProp(clients[i], Prop_Send, "m_lifeState", 0);
-						}
-					}
 					
 					total = Preference_GetBossQueue(clients, MaxClients, false, TFTeam_Red);
 					
