@@ -106,8 +106,8 @@ public void OnPluginStart() {
 
 	CreateConVar("sm_bvb_rounds_version", "1.0.0", "Version control for this plugin.", FCVAR_DONTRECORD);
 	convar_Enabled = CreateConVar("sm_bvb_rounds_enabled", "1", "Should this plugin be enabled or disabled?", FCVAR_NOTIFY, true, 0.0, true, 1.0);
-	convar_Chance = CreateConVar("sm_bvb_rounds_chance", "0.25", "What's the chance that a special around occurs per map?\n(0.0 = 0%, 1.0 = 100%, 0.50 = 50%)", FCVAR_NOTIFY, true, 0.0, true, 1.0);
-	convar_Chance_Ultra = CreateConVar("sm_bvb_rounds_chance_ultra", "0.25", "What's the chance of a special round being an ultra round?\n(0.0 = 0%, 1.0 = 100%, 0.50 = 50%)", FCVAR_NOTIFY, true, 0.0, true, 1.0);
+	convar_Chance = CreateConVar("sm_bvb_rounds_chance", "0.03", "What's the chance that a special around occurs per map?\n(0.0 = 0%, 1.0 = 100%, 0.50 = 50%)", FCVAR_NOTIFY, true, 0.0, true, 1.0);
+	convar_Chance_Ultra = CreateConVar("sm_bvb_rounds_chance_ultra", "0.0", "What's the chance of a special round being an ultra round?\n(0.0 = 0%, 1.0 = 100%, 0.50 = 50%)", FCVAR_NOTIFY, true, 0.0, true, 1.0);
 	convar_Max = CreateConVar("sm_bvb_rounds_max", "1", "What's the maximum amount of rounds available per map for a special round to occur?", FCVAR_NOTIFY, true, 0.0);
 	convar_Cooldown = CreateConVar("sm_bvb_rounds_cooldown", "10800", "What's the cooldown a player should have for manually starting a round in seconds?\n(60 seconds = 1 minute)", FCVAR_NOTIFY, true, 0.0);
 	//AutoExecConfig();
