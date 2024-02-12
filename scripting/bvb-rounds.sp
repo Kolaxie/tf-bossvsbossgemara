@@ -266,9 +266,7 @@ public void FF2R_OnRoundSetup() {
 			g_Data.ultraboss = GetRandomBoss(true);
 		}
 
-		enabled = true;
-		CPrintToChatAll("{green}[FF2]{default} An Ultra Boss has appeared! Chaos inbound!");
-		PrintCenterTextAll("An Ultra Boss has appeared! Chaos inbound!");		
+		enabled = true;		
 	}
 
 	g_Data.enabled = enabled;
