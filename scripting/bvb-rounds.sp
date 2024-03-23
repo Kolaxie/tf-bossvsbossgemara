@@ -545,9 +545,22 @@ public Action AdminCmd_RaidRound(int client, int args) {
 		return Plugin_Handled;
 	}
 
+	int target = GetRandomPlayer();
+	int boss = GetRandomBoss(false);
+
+	if (target < 1 || target > MaxClients) {
+		CPrintToChat(client, "{green}[FF2]{default} Failed to find a random target.");
+		return Plugin_Handled;
+	}
+
+	if (boss == -1) {
+		CPrintToChat(client, "{green}[FF2]{default} Failed to find a random boss.");
+		return Plugin_Handled;
+	}
+
 	g_Data.nextround = true;
-	g_Data.nextroundclient = GetClientUserId(GetRandomPlayer());
-	g_Data.nextroundboss = GetRandomBoss(false);
+	g_Data.nextroundclient = GetClientUserId(target);
+	g_Data.nextroundboss = boss;
 	
 	CPrintToChatAll("{green}[FF2]{default} %N is starting up a raid round for next round.", client);
 
@@ -560,9 +573,22 @@ public Action AdminCmd_UltraRound(int client, int args) {
 		return Plugin_Handled;
 	}
 
+	int target = GetRandomPlayer();
+	int boss = GetRandomBoss(true);
+
+	if (target < 1 || target > MaxClients) {
+		CPrintToChat(client, "{green}[FF2]{default} Failed to find a random target.");
+		return Plugin_Handled;
+	}
+
+	if (boss == -1) {
+		CPrintToChat(client, "{green}[FF2]{default} Failed to find a random boss.");
+		return Plugin_Handled;
+	}
+
 	g_Data.nextround = true;
-	g_Data.nextroundclient = GetClientUserId(GetRandomPlayer());
-	g_Data.nextroundboss = GetRandomBoss(false);
+	g_Data.nextroundclient = GetClientUserId(target);
+	g_Data.nextroundboss = boss;
 	g_Data.forceultra = true;
 	
 	CPrintToChatAll("{green}[FF2]{default} %N is starting up an ultra round for next round.", client);

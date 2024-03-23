@@ -15,6 +15,7 @@
 #include <tf2items>
 #include <tf2attributes>
 #include <debugger>
+
 #undef REQUIRE_EXTENSIONS
 #undef REQUIRE_PLUGIN
 #include <bvb-rounds>

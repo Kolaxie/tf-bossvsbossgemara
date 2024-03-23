@@ -173,10 +173,6 @@ void Gamemode_RoundSetup()
 		{
 			Goomba_RoundSetup();
 			
-			float preround = Cvar[PreroundTime].FloatValue;
-			CreateTimer(preround / 2.857143, Gamemode_IntroTimer, _, TIMER_FLAG_NO_MAPCHANGE);
-			CreateTimer(preround - 0.1, Gamemode_SetControlPoint, _, TIMER_FLAG_NO_MAPCHANGE);
-			
 			int bosses = Cvar[BossVsBoss].IntValue;
 			if (g_BvBRounds && BVBRounds_IsEnabled() && BVBRounds_IsSpecialRound()) {
 				int total;
@@ -189,11 +185,11 @@ void Gamemode_RoundSetup()
 
 				if(total)
 				{
-					int client = BVBRounds_GetClient();
+					int raidboss = BVBRounds_GetClient();
 					int boss = BVBRounds_GetPickedBoss();
 
-					if (client < 1 || client > MaxClients) {
-						LogError("Error while starting raid round: client invalid %d", client);
+					if (raidboss < 1 || raidboss > MaxClients) {
+						LogError("Error while starting raid round: client invalid %d", raidboss);
 						return;
 					}
 
@@ -228,6 +224,10 @@ void Gamemode_RoundSetup()
 					bool raid;
 					for (int i = 0; i < total; i++)
 					{
+						if (clients[i] < 1) {
+							continue;
+						}
+
 						if (ultra) {
 							if (clients[i] == ultraclient) {
 								ChangeClientTeam(clients[i], TFTeam_Blue);
@@ -236,19 +236,19 @@ void Gamemode_RoundSetup()
 								if (!raid) {
 									raid = true;
 									ChangeClientTeam(clients[i], TFTeam_Red);
-									Bosses_CreateFromSpecial(clients[i], boss, TFTeam_Red);
+									Bosses_CreateFromSpecial(clients[i], boss, TFTeam_Red, 0, true);
 								} else {
 									ChangeClientTeam(clients[i], TFTeam_Red);
-									Bosses_CreateFromSpecial(clients[i], Preference_PickBoss(clients[i], TFTeam_Red), TFTeam_Red);
+									Bosses_CreateFromSpecial(clients[i], Preference_PickBoss(clients[i], TFTeam_Red), TFTeam_Red, 0, true);
 								}
 							}
 						} else {
-							if (clients[i] == client) {
+							if (clients[i] == raidboss) {
 								ChangeClientTeam(clients[i], TFTeam_Blue);
 								Bosses_CreateFromSpecial(clients[i], boss, TFTeam_Blue);
 							} else {
 								ChangeClientTeam(clients[i], TFTeam_Red);
-								Bosses_CreateFromSpecial(clients[i], Preference_PickBoss(clients[i], TFTeam_Red), TFTeam_Red);
+								Bosses_CreateFromSpecial(clients[i], Preference_PickBoss(clients[i], TFTeam_Red), TFTeam_Red, 0, true);
 							}
 						}
 					}
@@ -380,6 +380,10 @@ void Gamemode_RoundSetup()
 					}
 				}
 			}
+
+			float preround = Cvar[PreroundTime].FloatValue;
+			CreateTimer(preround / 2.857143, Gamemode_IntroTimer, _, TIMER_FLAG_NO_MAPCHANGE);
+			CreateTimer(preround - 0.1, Gamemode_SetControlPoint, _, TIMER_FLAG_NO_MAPCHANGE);
 		}
 	}
 }
@@ -436,31 +440,36 @@ public Action Gamemode_IntroTimer(Handle timer)
 {
 	for(int client = 1; client <= MaxClients; client++)
 	{
-		if(IsClientInGame(client))
+		if(!IsClientInGame(client)) {
+			continue;
+		}
+
+		if(!Client(client).IsBoss ||
+			!ForwardOld_OnMusicPerBoss(client) ||
+			!Bosses_PlaySoundToClient(client, client, "sound_begin", _, _, _, _, _, 2.0))
 		{
-			if(!Client(client).IsBoss || !ForwardOld_OnMusicPerBoss(client) || (!Bosses_PlaySoundToClient(client, client, "sound_intro", _, _, _, _, _, 2.0) && !Bosses_PlaySoundToClient(client, client, "sound_begin", _, _, _, _, _, 2.0)))
+			int team = GetClientTeam(client);
+			int i;
+			for(; i < MaxClients; i++)
 			{
-				int team = GetClientTeam(client);
-				int i;
-				for(; i < MaxClients; i++)
+				int boss = FindClientOfBossIndex(i);
+				if(boss != -1 &&
+					GetClientTeam(boss) != team &&
+					Bosses_PlaySoundToClient(boss, client, "sound_begin", _, _, _, _, _, 2.0))
+					break;
+			}
+			
+			if(i == MaxClients)
+			{
+				int boss = FindClientOfBossIndex(0);
+				if(boss != -1)
 				{
-					int boss = FindClientOfBossIndex(i);
-					if(boss != -1 && GetClientTeam(boss) != team && (Bosses_PlaySoundToClient(boss, client, "sound_intro", _, _, _, _, _, 2.0) || Bosses_PlaySoundToClient(boss, client, "sound_begin", _, _, _, _, _, 2.0)))
-						break;
-				}
-				
-				if(i == MaxClients)
-				{
-					int boss = FindClientOfBossIndex(0);
-					if(boss != -1)
-					{
-						if(!Bosses_PlaySoundToClient(boss, client, "sound_intro", _, _, _, _, _, 2.0))
-							Bosses_PlaySoundToClient(boss, client, "sound_begin", _, _, _, _, _, 2.0);
-					}
+					Bosses_PlaySoundToClient(boss, client, "sound_begin", _, _, _, _, _, 2.0);
 				}
 			}
 		}
 	}
+
 	return Plugin_Continue;
 }
 

@@ -1603,7 +1603,7 @@ bool Bosses_GetBossNameCfg(ConfigMap cfg, char[] buffer, int length, int lang = 
 	return view_as<bool>(buffer[0]);
 }
 
-void Bosses_CreateFromSpecial(int client, int special, int team, int leader = 0)
+void Bosses_CreateFromSpecial(int client, int special, int team, int leader = 0, bool skip_intro = false)
 {
 	ConfigMap cfg = Bosses_GetConfig(special);
 	if(!cfg)
@@ -1613,12 +1613,12 @@ void Bosses_CreateFromSpecial(int client, int special, int team, int leader = 0)
 	cfg.Get("filename", buffer, sizeof(buffer));
 	Client(client).SetLastPlayed(buffer);
 	
-	Bosses_CreateFromConfig(client, cfg, team, leader);
+	Bosses_CreateFromConfig(client, cfg, team, leader, skip_intro);
 	
 	Client(client).Cfg.SetInt("special", special);
 }
 
-void Bosses_CreateFromConfig(int client, ConfigMap cfg, int team, int leader = 0)
+void Bosses_CreateFromConfig(int client, ConfigMap cfg, int team, int leader = 0, bool skip_intro = false)
 {
 	if(Client(client).Index < 0)
 	{
@@ -1642,6 +1642,16 @@ void Bosses_CreateFromConfig(int client, ConfigMap cfg, int team, int leader = 0
 	EnableSubplugins();
 	
 	Client(client).Cfg = cfg.Clone(ThisPlugin);
+
+	if (skip_intro) {
+		ConfigMap conf = Client(client).Cfg;
+		if (conf != null) {
+			ConfigMap cfg2 = conf.GetSection("sound_begin");
+			if (cfg2 != null) {
+				cfg2.Clear();
+			}
+		}
+	}
 	
 	if(GetClientTeam(client) != team)
 		SDKCall_ChangeClientTeam(client, team);
