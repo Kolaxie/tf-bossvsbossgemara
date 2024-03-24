@@ -230,8 +230,13 @@ GlobalForward g_Forward_OnRoundSetup;
 bool g_BvBRounds;
 bool g_FF2Party;
 
+int g_TF2Timer = -1;
+bool g_MapStarted = false;
+
 #include "freak_fortress_2/client.sp"
 #include "freak_fortress_2/stocks.sp"
+#include "freak_fortress_2/sprites.sp"
+#include "freak_fortress_2/outlines.sp"
 
 #include "freak_fortress_2/attributes.sp"
 #include "freak_fortress_2/bosses.sp"
@@ -289,6 +294,8 @@ public APLRes AskPluginLoad2(Handle myself, bool late, char[] error, int err_max
 	CreateNative("FF2R_Bosses_GetByName", Native_GetByName);
 
 	g_Forward_OnRoundSetup = new GlobalForward("FF2R_OnRoundSetup", ET_Ignore);
+
+	g_MapStarted = late;
 
 	return APLRes_Success;
 }
@@ -350,6 +357,13 @@ public void OnPluginStart()
 		if(IsClientInGame(i))
 			OnClientPutInServer(i);
 	}
+
+	CreateTimer(1.0, Timer_Second, _, TIMER_REPEAT);
+}
+
+public Action Timer_Second(Handle timer) {
+	Outlines_Tick();
+	return Plugin_Continue;
 }
 
 public void OnAllPluginsLoaded()
@@ -370,6 +384,9 @@ public void OnMapStart()
 	Configs_MapStart();
 	DHook_MapStart();
 	Gamemode_MapStart();
+	Sprites_MapStart();
+
+	g_MapStarted = true;
 }
 
 public void OnConfigsExecuted()
@@ -396,6 +413,10 @@ public void OnMapEnd()
 	Bosses_MapEnd();
 	Gamemode_MapEnd();
 	Preference_MapEnd();
+
+	ClearOutlines();
+
+	g_MapStarted = false;
 }
 
 public void OnPluginEnd()
@@ -406,6 +427,16 @@ public void OnPluginEnd()
 	DHook_PluginEnd();
 	Gamemode_PluginEnd();
 	Music_PlaySongToAll();
+
+	for (int i = 1; i <= MaxClients; i++) {
+		if (!IsClientConnected(i) || !IsClientInGame(i) || !IsPlayerAlive(i)) {
+			continue;
+		}
+
+		RemoveSprite(i);
+	}
+
+	ClearOutlines();
 }
 
 public void OnLibraryAdded(const char[] name)
@@ -457,6 +488,9 @@ public void OnClientDisconnect(int client)
 	Preference_ClientDisconnect(client);
 	
 	Client(client).ResetByAll();
+
+	RemoveSprite(client);
+	ClearOutline(client);
 }
 
 public Action OnPlayerRunCmd(int client, int &buttons)
@@ -485,3 +519,23 @@ public void TF2_OnConditionRemoved(int client, TFCond cond)
 {
 	Gamemode_ConditionRemoved(client, cond);
 }
+
+int GetTimeRemaining() {
+	if (!IsValidEntity(g_TF2Timer)) {
+		return -1;
+	}
+
+	float seconds;
+
+	if (GetEntProp(g_TF2Timer, Prop_Send, "m_bStopWatchTimer") && GetEntProp(g_TF2Timer, Prop_Send, "m_bInCaptureWatchState")) {
+		seconds = GetEntPropFloat(g_TF2Timer, Prop_Send, "m_flTotalTime");
+	} else {
+		if (GetEntProp(g_TF2Timer, Prop_Send, "m_bTimerPaused")) {
+			seconds = GetEntPropFloat(g_TF2Timer, Prop_Send, "m_flTimeRemaining");
+		} else {
+			seconds = GetEntPropFloat(g_TF2Timer, Prop_Send, "m_flTimerEndTime") - GetGameTime();
+		}
+	}
+
+	return RoundFloat(seconds);
+}  

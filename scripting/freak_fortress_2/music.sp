@@ -139,6 +139,25 @@ void Music_PlayNextSong(int client = 0)
 	if(client)
 	{
 		NextThemeAt[client] = FAR_FUTURE;
+
+		if (g_BvBRounds && BVBRounds_IsEnabled() && BVBRounds_IsSpecialRound()) {
+			int ultraclient = BVBRounds_GetUltraClient();
+			int ultraboss = BVBRounds_GetUltraBoss();
+
+			if (Bosses_GetConfig(ultraboss) != null && ultraclient > 0) {
+				Bosses_PlaySoundToClient(ultraclient, client, "sound_bgm");
+				return;
+			}
+
+			int raidboss = BVBRounds_GetClient();
+			int boss = BVBRounds_GetPickedBoss();
+
+			if (Bosses_GetConfig(boss) != null && raidboss > 0) {
+				Bosses_PlaySoundToClient(raidboss, client, "sound_bgm");
+				return;
+			}
+		}
+
 		
 		if(Client(client).MusicShuffle)
 		{

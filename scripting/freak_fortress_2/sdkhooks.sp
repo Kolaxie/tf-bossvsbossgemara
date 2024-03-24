@@ -71,6 +71,10 @@ void SDKHook_HookClient(int client)
 
 public void OnEntityCreated(int entity, const char[] classname)
 {
+	if (StrEqual(classname, "team_control_point_master")) {
+		SDKHook(entity, SDKHook_SpawnPost, OnCPMasterSpawnedPost);
+	}
+
 	if(StrContains(classname, "item_healthkit") != -1)
 	{
 		SDKHook(entity, SDKHook_StartTouch, SDKHook_HealthTouch);
@@ -552,6 +556,50 @@ public Action SDKHook_AmmoTouch(int entity, int client)
 
 public Action SDKHook_TimerSpawn(int entity)
 {
-	DispatchKeyValue(entity, "auto_countdown", "0");
+	//DispatchKeyValue(entity, "auto_countdown", "0");
 	return Plugin_Continue;
+}
+
+public void OnCPMasterSpawnedPost(int entity) {
+	if (!g_MapStarted) {
+		return;
+	}
+
+	int timer = FindEntityByClassname(-1, "team_round_timer");
+
+	if (!IsValidEntity(timer)) {
+		timer = CreateEntityByName("team_round_timer");
+		DispatchKeyValueInt(timer, "auto_countdown", 1);
+		DispatchKeyValueInt(timer, "max_length", 60 * 10);
+		DispatchKeyValueInt(timer, "reset_time", 1);
+		DispatchKeyValueInt(timer, "setup_length", 0);
+		DispatchKeyValueInt(timer, "show_in_hud", 1);
+		DispatchKeyValueInt(timer, "show_time_remaining", 1);
+		DispatchKeyValueInt(timer, "start_paused", 0);
+		DispatchKeyValueInt(timer, "timer_length", 60 * 10);
+		DispatchKeyValueInt(timer, "StartDisabled", 0);
+
+		DispatchSpawn(timer);
+		ActivateEntity(timer);
+
+		AcceptEntityInput(timer, "Enable");
+		AcceptEntityInput(timer, "Resume");
+
+		SetVariantInt(1);
+		AcceptEntityInput(timer, "ShowInHUD");
+
+	} else {
+		SetVariantInt(60 * 10);
+		AcceptEntityInput(timer, "SetTime");
+
+		AcceptEntityInput(timer, "Enable");
+		AcceptEntityInput(timer, "Resume");
+
+		SetVariantInt(1);
+		AcceptEntityInput(timer, "ShowInHUD");
+	}
+
+	LogMessage("[FF2] Team Round Timer: %i", timer);
+
+	g_TF2Timer = timer;
 }

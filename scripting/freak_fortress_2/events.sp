@@ -18,6 +18,7 @@ void Events_PluginStart()
 	YourHud = CreateHudSynchronizer();
 	TopHud = CreateHudSynchronizer();
 	
+	HookEvent("teamplay_round_start", Events_RoundInit, EventHookMode_Pre);
 	HookEvent("arena_round_start", Events_RoundStart, EventHookMode_Pre);
 	HookEvent("arena_win_panel", Events_WinPanel, EventHookMode_Pre);
 	HookEvent("object_deflected", Events_ObjectDeflected, EventHookMode_Post);
@@ -141,16 +142,42 @@ void Events_CheckAlivePlayers(int exclude = 0, bool alive = true, bool resetMax 
 		Gamemode_CheckPointUnlock(total, !LastMann);
 }
 
+public void Events_RoundInit(Event event, const char[] name, bool dontBroadcast) {
+	// int timer = FindEntityByClassname(-1, "team_round_timer");
+
+	// if (!IsValidEntity(timer)) {
+	// 	timer = CreateEntityByName("team_round_timer");
+	// 	DispatchKeyValueInt(timer, "auto_countdown", 1);
+	// 	DispatchKeyValueInt(timer, "max_length", 60 * 10);
+	// 	DispatchKeyValueInt(timer, "reset_time", 1);
+	// 	DispatchKeyValueInt(timer, "setup_length", 0);
+	// 	DispatchKeyValueInt(timer, "show_in_hud", 1);
+	// 	DispatchKeyValueInt(timer, "show_time_remaining", 1);
+	// 	DispatchKeyValueInt(timer, "start_paused", 0);
+	// 	DispatchKeyValueInt(timer, "timer_length", 60 * 10);
+	// 	DispatchKeyValueInt(timer, "StartDisabled", 0);
+	// 	DispatchSpawn(timer);
+	// 	ActivateEntity(timer);
+	// } else {
+	// 	SetVariantInt(60 * 10);
+	// 	AcceptEntityInput(timer, "SetTime");
+	// }
+
+	// g_TF2Timer = timer;
+}
+
 public void Events_RoundStart(Event event, const char[] name, bool dontBroadcast)
 {
 	FirstBlood = true;
 	LastMann = false;
 	Gamemode_RoundStart();
+	ClearOutlines();
 }
 
 public void Events_RoundEnd(Event event, const char[] name, bool dontBroadcast)
 {
 	Gamemode_RoundEnd(event.GetInt("team"));
+	ClearOutlines();
 }
 
 public Action Events_BroadcastAudio(Event event, const char[] name, bool dontBroadcast)
@@ -218,7 +245,12 @@ public void Events_PlayerSpawn(Event event, const char[] name, bool dontBroadcas
 		SetEntProp(client, Prop_Send, "m_nModelIndexOverrides", 0, _, 0);
 		SetEntProp(client, Prop_Send, "m_nModelIndexOverrides", 0, _, 3);
 	}
-	
+
+	if (client > 0 && IsClientInGame(client) && IsPlayerAlive(client)) {
+		AttachSprite(client, GetClientTeam(client) == 2 ? SPRITE_RED : SPRITE_BLUE, 25.0);
+		GiveOutline(client);
+	}
+
 	Events_CheckAlivePlayers();
 }
 
@@ -619,6 +651,13 @@ public void Events_PlayerDeath(Event event, const char[] name, bool dontBroadcas
 				Client(victim).ResetByDeath();
 			}
 		}
+	}
+
+	int client = GetClientOfUserId(event.GetInt("userid"));
+
+	if (client > 0) {
+		RemoveSprite(client);
+		ClearOutline(client);
 	}
 }
 

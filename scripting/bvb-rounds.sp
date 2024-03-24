@@ -16,6 +16,7 @@ ConVar convar_Chance;
 ConVar convar_Chance_Ultra;
 ConVar convar_Max;
 ConVar convar_Cooldown;
+ConVar convar_Timeleft;
 
 Database g_Database;
 bool g_IsSQLite;
@@ -110,7 +111,8 @@ public void OnPluginStart() {
 	convar_Chance_Ultra = CreateConVar("sm_bvb_rounds_chance_ultra", "0.0", "What's the chance of a special round being an ultra round?\n(0.0 = 0%, 1.0 = 100%, 0.50 = 50%)", FCVAR_NOTIFY, true, 0.0, true, 1.0);
 	convar_Max = CreateConVar("sm_bvb_rounds_max", "1", "What's the maximum amount of rounds available per map for a special round to occur?", FCVAR_NOTIFY, true, 0.0);
 	convar_Cooldown = CreateConVar("sm_bvb_rounds_cooldown", "10800", "What's the cooldown a player should have for manually starting a round in seconds?\n(60 seconds = 1 minute)", FCVAR_NOTIFY, true, 0.0);
-	//AutoExecConfig();
+	convar_Timeleft = CreateConVar("sm_bvb_rounds_timeleft", "15", "How much time left to check for to lock special rounds?\n(15 = 15 minutes)", FCVAR_NOTIFY, true, 0.0);
+	AutoExecConfig();
 
 	g_Data.Init();
 
@@ -331,6 +333,11 @@ public ItemResult TextStore_Item(int client, bool equipped, KeyValues item, int 
 	}
 	
 	if (StrContains(name, TEXTSTORE_ITEM, false) == 0) {
+		if (IsEndOfMap()) {
+			CPrintToChat(client, "{green}[FF2]{default} Special rounds cannot be queued, new map is queued.");
+			return Item_None;
+		}
+
 		char boss[64];
 		item.GetString("boss", boss, sizeof(boss));
 		
@@ -538,8 +545,17 @@ public void Event_OnRoundEnd(Event event, const char[] name, bool dontBroadcast)
 }
 
 public Action AdminCmd_RaidRound(int client, int args) {
+	if (!convar_Enabled.BoolValue) {
+		return Plugin_Continue;
+	}
+
+	if (IsEndOfMap()) {
+		CReplyToCommand(client, "{green}[FF2]{default} Special rounds cannot be queued, new map is queued.");
+		return Plugin_Handled;
+	}
+
 	if (g_Data.nextround) {
-		CPrintToChat(client, "{green}[FF2]{default} A raid round is already queued up.");
+		CReplyToCommand(client, "{green}[FF2]{default} A raid round is already queued up.");
 		return Plugin_Handled;
 	}
 
@@ -547,12 +563,12 @@ public Action AdminCmd_RaidRound(int client, int args) {
 	int boss = GetRandomBoss(false);
 
 	if (target < 1 || target > MaxClients) {
-		CPrintToChat(client, "{green}[FF2]{default} Failed to find a random target.");
+		CReplyToCommand(client, "{green}[FF2]{default} Failed to find a random target.");
 		return Plugin_Handled;
 	}
 
 	if (boss == -1) {
-		CPrintToChat(client, "{green}[FF2]{default} Failed to find a random boss.");
+		CReplyToCommand(client, "{green}[FF2]{default} Failed to find a random boss.");
 		return Plugin_Handled;
 	}
 
@@ -566,8 +582,17 @@ public Action AdminCmd_RaidRound(int client, int args) {
 }
 
 public Action AdminCmd_UltraRound(int client, int args) {
+	if (!convar_Enabled.BoolValue) {
+		return Plugin_Continue;
+	}
+	
+	if (IsEndOfMap()) {
+		CReplyToCommand(client, "{green}[FF2]{default} Special rounds cannot be queued, new map is queued.");
+		return Plugin_Handled;
+	}
+
 	if (g_Data.ultra) {
-		CPrintToChat(client, "{green}[FF2]{default} An ultra round is already queued up.");
+		CReplyToCommand(client, "{green}[FF2]{default} An ultra round is already queued up.");
 		return Plugin_Handled;
 	}
 
@@ -575,12 +600,12 @@ public Action AdminCmd_UltraRound(int client, int args) {
 	int boss = GetRandomBoss(true);
 
 	if (target < 1 || target > MaxClients) {
-		CPrintToChat(client, "{green}[FF2]{default} Failed to find a random target.");
+		CReplyToCommand(client, "{green}[FF2]{default} Failed to find a random target.");
 		return Plugin_Handled;
 	}
 
 	if (boss == -1) {
-		CPrintToChat(client, "{green}[FF2]{default} Failed to find a random boss.");
+		CReplyToCommand(client, "{green}[FF2]{default} Failed to find a random boss.");
 		return Plugin_Handled;
 	}
 
@@ -592,4 +617,13 @@ public Action AdminCmd_UltraRound(int client, int args) {
 	CPrintToChatAll("{green}[FF2]{default} %N is starting up an ultra round for next round.", client);
 
 	return Plugin_Handled;
+}
+
+bool IsEndOfMap() {
+	int timeleft;
+	if (!GetMapTimeLeft(timeleft)) {
+		return false;
+	}
+
+	return timeleft <= convar_Timeleft.IntValue * 60;
 }

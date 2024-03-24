@@ -174,6 +174,8 @@ void Gamemode_RoundSetup()
 			Goomba_RoundSetup();
 			
 			int bosses = Cvar[BossVsBoss].IntValue;
+			bool dotimer;
+
 			if (g_BvBRounds && BVBRounds_IsEnabled() && BVBRounds_IsSpecialRound()) {
 				int total;
 				int[] clients = new int[MaxClients];
@@ -255,6 +257,8 @@ void Gamemode_RoundSetup()
 				}
 			} else if(bosses > 0)	// Boss vs Boss
 			{
+				dotimer = true;
+
 				int total;
 				int[] clients = new int[MaxClients];
 				for(int client = 1; client <= MaxClients; client++)
@@ -303,6 +307,8 @@ void Gamemode_RoundSetup()
 			}
 			else	// Standard FF2
 			{
+				dotimer = true;
+
 				int boss[1];
 				if(Preference_GetBossQueue(boss, 1, false))
 				{
@@ -379,6 +385,25 @@ void Gamemode_RoundSetup()
 						}
 					}
 				}
+			}
+
+			if (dotimer && IsValidEntity(g_TF2Timer)) {
+
+				SetVariantInt(60 * 10);
+				AcceptEntityInput(g_TF2Timer, "SetTime");
+
+				AcceptEntityInput(g_TF2Timer, "Resume");
+
+				SetVariantBool(true);
+				AcceptEntityInput(g_TF2Timer, "ShowInHud");
+
+			} else {
+
+				AcceptEntityInput(g_TF2Timer, "Pause");
+
+				SetVariantBool(false);
+				AcceptEntityInput(g_TF2Timer, "ShowInHud");
+				
 			}
 
 			float preround = Cvar[PreroundTime].FloatValue;
