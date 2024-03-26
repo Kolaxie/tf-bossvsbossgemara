@@ -158,7 +158,7 @@ void Weapons_ChangeMenu(int client, int time = MENU_TIME_FOREVER)
 	if(Client(client).IsBoss)
 	{
 		char buffer[512];
-		if(Bosses_GetBossNameCfg(Client(client).Cfg, buffer, sizeof(buffer), GetClientLanguage(client), "description"))
+		if(Bosses_GetBossNameCfg(Client(client).Cfg, buffer, sizeof(buffer), "description"))
 		{
 			Menu menu = new Menu(Weapons_ChangeMenuH);
 			

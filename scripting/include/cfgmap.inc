@@ -27,7 +27,6 @@
 	#endinput
 #endif
 #define _cfgmap_included
-#define CFGMAP_FF2R
 
 #include <adt_array>
 #include <adt_trie>

@@ -617,7 +617,7 @@ void Gamemode_RoundStart()
 			
 			for(int a; a < mercs; a++)
 			{
-				Bosses_GetBossNameCfg(Client(boss[i]).Cfg, buffer, sizeof(buffer), GetClientLanguage(merc[a]));
+				Bosses_GetBossNameCfg(Client(boss[i]).Cfg, buffer, sizeof(buffer));
 				if(maxlives > 1)
 				{
 					FPrintToChatEx(merc[a], boss[i], "%t", "Boss Spawned As Lives", boss[i], buffer, maxhealth, maxlives);
@@ -753,7 +753,7 @@ void Gamemode_RoundEnd(int winteam)
 				{
 					if(health || !Client(clients[a]).IsBoss)
 					{
-						Bosses_GetBossNameCfg(Client(clients[i]).Cfg, buffer, sizeof(buffer), GetClientLanguage(clients[a]));
+						Bosses_GetBossNameCfg(Client(clients[i]).Cfg, buffer, sizeof(buffer));
 						FPrintToChatEx(clients[a], clients[i], "%t", "Boss Had Health Left", buffer, clients[i], health, maxhealth);
 					}
 				}
@@ -789,12 +789,12 @@ void Gamemode_RoundEnd(int winteam)
 					
 					if(teamName[i])	// Team with a Name
 					{
-						Bosses_GetBossNameCfg(Client(teamName[i]).Cfg, buffer, sizeof(buffer), GetClientLanguage(clients[a]), "group");
+						Bosses_GetBossNameCfg(Client(teamName[i]).Cfg, buffer, sizeof(buffer), "group");
 						ShowSyncHudText(clients[a], TeamSyncHud[i], "%t", "Team Had Health Left Hud", "_s", buffer, totalHealth[i], totalMax[i]);
 					}
 					else if(bosses[i] == 1)	// Solo Boss
 					{
-						Bosses_GetBossNameCfg(Client(lastBoss[i]).Cfg, buffer, sizeof(buffer), GetClientLanguage(clients[a]));
+						Bosses_GetBossNameCfg(Client(lastBoss[i]).Cfg, buffer, sizeof(buffer));
 						ShowSyncHudText(clients[a], TeamSyncHud[i], "%t", "Boss Had Health Left Hud", buffer, lastBoss[i], totalHealth[i], totalMax[i]);
 					}
 					else	// Team without a Name

@@ -195,12 +195,6 @@ public any NativeOld_GetName(Handle plugin, int params)
 	if(index < 0)
 		return false;
 	
-	int lang = GetNativeCell(5);
-	if(lang < 0 || lang > MaxClients || (lang && !IsClientInGame(lang)))
-		return ThrowNativeError(SP_ERROR_NATIVE, "Invalid client index %d", lang);
-	
-	lang = lang ? GetClientLanguage(lang) : GetServerLanguage();
-	
 	int size = GetNativeCell(3);
 	char[] buffer = new char[size];
 	if(GetNativeCell(4))
@@ -209,7 +203,7 @@ public any NativeOld_GetName(Handle plugin, int params)
 		if(!cfg)
 			return false;
 		
-		Bosses_GetBossNameCfg(cfg, buffer, size, lang);
+		Bosses_GetBossNameCfg(cfg, buffer, size);
 	}
 	else
 	{
@@ -217,7 +211,7 @@ public any NativeOld_GetName(Handle plugin, int params)
 		if(index == -1 || !Client(index).IsBoss)
 			return false;
 		
-		Bosses_GetBossNameCfg(Client(index).Cfg, buffer, size, lang);
+		Bosses_GetBossNameCfg(Client(index).Cfg, buffer, size);
 	}
 	
 	SetNativeString(2, buffer, size);

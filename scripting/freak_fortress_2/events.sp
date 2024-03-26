@@ -445,7 +445,7 @@ public Action Events_PlayerHurt(Event event, const char[] name, bool dontBroadca
 								{
 									merc[mercs++] = i;
 									
-									Bosses_GetBossNameCfg(Client(victim).Cfg, buffer, sizeof(buffer), GetClientLanguage(victim));
+									Bosses_GetBossNameCfg(Client(victim).Cfg, buffer, sizeof(buffer));
 									if(lives == 1)
 									{
 										ShowGameText(i, "ico_notify_flag_moving_alt", team, "%t", "Lost Life", buffer);

@@ -319,9 +319,7 @@ public int Native_GetByName(Handle plugin, int numParams) {
 	char[] name = new char[size + 1];
 	GetNativeString(1, name, size + 1);
 
-	int lang = GetNativeCell(2);
-
-	return Bosses_GetByName(name, lang);
+	return Bosses_GetByName(name);
 }
 
 public void OnPluginStart()

@@ -4,8 +4,6 @@
 #define _ff2r_included
 
 #include <sdktools_sound>
-
-#define CFGMAP_FF2R
 #include <cfgmap>
 
 #define SNDVOL_BOSS	2.0
@@ -292,12 +290,7 @@ stock bool FF2R_EmitBossSoundToAll(const char[] key, int boss, const char[] requ
 
 native int FF2R_Bosses_GetConfigLength();
 native ConfigMap FF2R_Bosses_GetConfig(int special);
-native int FF2R_Bosses_GetByName(const char[] name, int lang = -1);
-
-/**
- *	Below is related to using ConfigMap, though cfgmap is not required for this include, needed for the below
- */
-#if defined CFGMAP_FF2R
+native int FF2R_Bosses_GetByName(const char[] name);
 
 methodmap ConfigData < ConfigMap
 {
@@ -886,18 +879,6 @@ forward void FF2R_OnBossPrecached(BossData cfg, bool enabled, int index);
  * @noreturn
  */
 forward void FF2R_OnBossModifier(int client, ConfigData cfg);
-
-#else
-
-native bool FF2R_GetBossData(int client);
-native void FF2R_SetBossData(int client, bool forwards = true);
-native bool FF2R_GetSpecialData(int special);
-native bool FF2R_CreateBoss(int client);
-forward void FF2R_OnAbility(int client, const char[] ability);
-forward void FF2R_OnAbilityPost(int client, const char[] ability);
-forward void FF2R_OnBossModifier(int client);
-
-#endif
 
 public SharedPlugin __pl_ff2r =
 {

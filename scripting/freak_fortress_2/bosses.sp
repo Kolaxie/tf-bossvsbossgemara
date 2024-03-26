@@ -7,10 +7,10 @@
 	int Bosses_GetCharsetLength()
 	ConfigMap Bosses_GetConfig(int special)
 	int Bosses_GetConfigLength()
-	int Bosses_GetByName(const char[] name, bool exact = true, bool enabled = true, int lang = -1, const char[] string = "name")
+	int Bosses_GetByName(const char[] name)
 	bool Bosses_CanAccessBoss(int client, int special, bool playing = false, int team = -1, bool enabled = true, bool &preview = false)
-	bool Bosses_GetBossName(int special, char[] buffer, int length, int lang = -1, const char[] string = "name")
-	bool Bosses_GetBossNameCfg(ConfigMap cfg, char[] buffer, int length, int lang = -1, const char[] string = "name")
+	bool Bosses_GetBossName(int special, char[] buffer, int length, const char[] string = "name")
+	bool Bosses_GetBossNameCfg(ConfigMap cfg, char[] buffer, int length, const char[] string = "name")
 	void Bosses_CreateFromSpecial(int client, int special, int team, int leader = 0)
 	void Bosses_CreateFromConfig(int client, ConfigMap cfg, int team, int leader = 0)
 	void Bosses_SetHealth(int client, int players)
@@ -65,7 +65,7 @@ public Action Bosses_DebugCacheCmd(int args)
 		}
 		else
 		{
-			special = Bosses_GetByName(buffer, GetServerLanguage());
+			special = Bosses_GetByName(buffer);
 		}
 		
 		if(special == -1)
@@ -120,7 +120,7 @@ public Action Bosses_MakeBossCmd(int client, int args)
 			}
 			else
 			{
-				special = Bosses_GetByName(buffer, client ? GetClientLanguage(client) : GetServerLanguage());
+				special = Bosses_GetByName(buffer);
 			}
 		}
 		
@@ -1407,23 +1407,17 @@ int Bosses_GetConfigLength()
 	return BossList.Length;
 }
 
-int Bosses_GetByName(const char[] name, int lang = -1)
+int Bosses_GetByName(const char[] name)
 {
 	if (BossList == null || BossList.Length == 0) {
 		return -1;
 	}
 
-	char language[5];
-	if (lang != -1) {
-		GetLanguageInfo(lang, language, sizeof(language));
-	}
-
 	int bossIndex = -1;
 	
-	char key[64]; char buffer[64]; ConfigMap cfg;
+	char buffer[64]; ConfigMap cfg;
 	for (int i = 0; i < BossList.Length; i++)
 	{
-		key[0] = '\0';
 		buffer[0] = '\0';
 		cfg = null;
 
@@ -1431,13 +1425,7 @@ int Bosses_GetByName(const char[] name, int lang = -1)
 			continue;
 		}
 
-		if (lang != -1) {
-			Format(key, sizeof(key), "name_%s", language);
-		} else {
-			strcopy(key, sizeof(key), "name");
-		}
-
-		if (cfg.Get(key, buffer, sizeof(buffer)) > 0 && StrEqual(name, buffer, false)) {
+		if (cfg.Get("name", buffer, sizeof(buffer)) > 0 && StrEqual(name, buffer, false)) {
 			return i;
 		}
 	}
@@ -1574,25 +1562,18 @@ bool Bosses_CanAccessBoss(int client, int special, bool playing = false, int tea
 	return !blocked;
 }
 
-bool Bosses_GetBossName(int special, char[] buffer, int length, int lang = -1, const char[] string = "name")
+bool Bosses_GetBossName(int special, char[] buffer, int length, const char[] string = "name")
 {
 	ConfigMap cfg = Bosses_GetConfig(special);
 	if(!cfg)
 		return false;
 	
-	return Bosses_GetBossNameCfg(cfg, buffer, length, lang, string);
+	return Bosses_GetBossNameCfg(cfg, buffer, length, string);
 }
 
-bool Bosses_GetBossNameCfg(ConfigMap cfg, char[] buffer, int length, int lang = -1, const char[] string = "name")
+bool Bosses_GetBossNameCfg(ConfigMap cfg, char[] buffer, int length, const char[] string = "name")
 {
-	if(lang != -1)
-	{
-		GetLanguageInfo(lang, buffer, length);
-		Format(buffer, length, "%s_%s", string, buffer);
-		if(!cfg.Get(buffer, buffer, length) && !cfg.Get(string, buffer, length))
-			buffer[0] = 0;
-	}
-	else if(!cfg.Get(string, buffer, length))
+	if(!cfg.Get(string, buffer, length))
 	{
 		buffer[0] = 0;
 	}

@@ -137,7 +137,7 @@ bool Preference_GetBoss(int client, int index, char[] buffer, int length)
 	}
 	else
 	{
-		Bosses_GetBossName(special, buffer, length, _, "filename");
+		Bosses_GetBossName(special, buffer, length, "filename");
 	}
 	return true;
 }
@@ -326,7 +326,7 @@ public Action Preference_BossMenuCmd(int client, int args)
 			}
 			else
 			{
-				special = Bosses_GetByName(buffer, GetClientLanguage(client));
+				special = Bosses_GetByName(buffer);
 			}
 			
 			if(Bosses_CanAccessBoss(client, special, false, _, false))
@@ -335,7 +335,7 @@ public Action Preference_BossMenuCmd(int client, int args)
 				if(GetClientMenu(client) != MenuSource_None)
 					CancelClientMenu(client);
 				
-				Bosses_GetBossName(special, buffer, sizeof(buffer), GetClientLanguage(client));
+				Bosses_GetBossName(special, buffer, sizeof(buffer));
 				ConfigMap cfg = Bosses_GetConfig(special);
 				
 				int index;
@@ -431,7 +431,7 @@ public Action Preference_BossMenuCmd(int client, int args)
 		}
 		else
 		{
-			ViewingBoss[client] = Bosses_GetByName(buffer, GetClientLanguage(client));
+			ViewingBoss[client] = Bosses_GetByName(buffer);
 		}
 		
 		Menu_Command(client);
@@ -466,7 +466,6 @@ static void BossMenu(int client)
 	Menu menu = new Menu(Preference_BossMenuH);
 	
 	SetGlobalTransTarget(client);
-	int lang = GetClientLanguage(client);
 	
 	char data[64], buffer[512];
 	if(ViewingBoss[client] >= 0)
@@ -478,7 +477,7 @@ static void BossMenu(int client)
 			if(ViewingPack[client] >= 0)
 			{
 				Bosses_GetCharset(ViewingPack[client], data, sizeof(data));
-				if(Bosses_GetBossName(ViewingBoss[client], buffer, sizeof(buffer), lang, "description"))
+				if(Bosses_GetBossName(ViewingBoss[client], buffer, sizeof(buffer), "description"))
 				{
 					menu.SetTitle("%t%s\n \n%s\n ", "Boss Selection Command", data, buffer);
 				}
@@ -487,7 +486,7 @@ static void BossMenu(int client)
 					menu.SetTitle("%t%s\n \n%t\n ", "Boss Selection Command", data, "No Description");
 				}
 			}
-			else if(Bosses_GetBossName(ViewingBoss[client], buffer, sizeof(buffer), lang, "description"))
+			else if(Bosses_GetBossName(ViewingBoss[client], buffer, sizeof(buffer), "description"))
 			{
 				menu.SetTitle("%t\n%s\n ", "Boss Selection Command", buffer);
 			}
@@ -510,12 +509,12 @@ static void BossMenu(int client)
 						
 						count = GetBlacklistCount(client, charset);
 						
-						Bosses_GetBossName(ViewingBoss[client], data, sizeof(data), lang);
+						Bosses_GetBossName(ViewingBoss[client], data, sizeof(data));
 						FormatEx(buffer, sizeof(buffer), "%t (%d / %d)", "Boss Whitelist", data, count, blacklist);
 					}
 					else
 					{
-						Bosses_GetBossName(ViewingBoss[client], data, sizeof(data), lang);
+						Bosses_GetBossName(ViewingBoss[client], data, sizeof(data));
 						FormatEx(buffer, sizeof(buffer), "%t", "Boss Blacklist", data);
 					}
 					
@@ -529,8 +528,8 @@ static void BossMenu(int client)
 					}
 					else
 					{
-						if(!Bosses_GetBossName(ViewingBoss[client], data, sizeof(data), lang, "group"))
-							Bosses_GetBossName(ViewingBoss[client], data, sizeof(data), lang);
+						if(!Bosses_GetBossName(ViewingBoss[client], data, sizeof(data), "group"))
+							Bosses_GetBossName(ViewingBoss[client], data, sizeof(data));
 						
 						FormatEx(buffer, sizeof(buffer), "%t", "Boss Party", data);
 						menu.AddItem("2", buffer);
@@ -544,13 +543,13 @@ static void BossMenu(int client)
 					
 					count = GetBlacklistCount(client, charset);
 					
-					Bosses_GetBossName(ViewingBoss[client], data, sizeof(data), lang);
+					Bosses_GetBossName(ViewingBoss[client], data, sizeof(data));
 					FormatEx(buffer, sizeof(buffer), "%t (%d / %d)", "Boss Blacklist", data, count, blacklist);
 					menu.AddItem(count >= blacklist ? "0" : "1", buffer, count >= blacklist ? ITEMDRAW_DISABLED : ITEMDRAW_DEFAULT);
 				}
 				else
 				{
-					Bosses_GetBossName(ViewingBoss[client], data, sizeof(data), lang);
+					Bosses_GetBossName(ViewingBoss[client], data, sizeof(data));
 					FormatEx(buffer, sizeof(buffer), "%t", "Boss Whitelist", data);
 					menu.AddItem("1", buffer);
 				}
@@ -594,7 +593,7 @@ static void BossMenu(int client)
 					bool access = Bosses_CanAccessBoss(client, i, false, _, false, preview);
 					if(access || preview)
 					{
-						Bosses_GetBossNameCfg(cfg, buffer, sizeof(buffer), lang);
+						Bosses_GetBossNameCfg(cfg, buffer, sizeof(buffer));
 						if(blacklist != 0)
 						{
 							if(PartyLeader[client] && PartyMainBoss[PartyLeader[client]] == i)
@@ -914,12 +913,12 @@ bool Preference_ClientDisconnect(int client)
 			
 			if(newLeader)
 			{
-				Bosses_GetBossName(PartyChoice[client], buffer, sizeof(buffer), GetClientLanguage(target));
+				Bosses_GetBossName(PartyChoice[client], buffer, sizeof(buffer));
 				FPrintToChat(target, "%t", "Party Leader Left", client, buffer, newLeader);
 			}
 			else
 			{
-				Bosses_GetBossName(PartyChoice[client], buffer, sizeof(buffer), GetClientLanguage(target));
+				Bosses_GetBossName(PartyChoice[client], buffer, sizeof(buffer));
 				FPrintToChat(target, "%t", "Party Member Left", client, buffer);
 			}
 		}
@@ -942,20 +941,19 @@ static void CreateParty(int client)
 	Menu menu = new Menu(Preference_CreatePartyH);
 	
 	SetGlobalTransTarget(client);
-	int lang = GetClientLanguage(client);
 	
 	int special = ViewingBoss[client];
 	
 	char data[12], buffer[64];
-	if(!Bosses_GetBossName(special, buffer, sizeof(buffer), lang, "group"))
-		Bosses_GetBossName(special, buffer, sizeof(buffer), lang);
+	if(!Bosses_GetBossName(special, buffer, sizeof(buffer), "group"))
+		Bosses_GetBossName(special, buffer, sizeof(buffer));
 	
 	menu.SetTitle("%t", "Boss Party Menu", buffer);
 	
 	for(int i; i<MAXTF2PLAYERS; i++)	// In case someone made an infinite loop boss
 	{
 		ConfigMap cfg = Bosses_GetConfig(special);
-		Bosses_GetBossNameCfg(cfg, buffer, sizeof(buffer), lang);
+		Bosses_GetBossNameCfg(cfg, buffer, sizeof(buffer));
 		
 		IntToString(special, data, sizeof(data));
 		menu.AddItem(data, buffer);
@@ -1005,13 +1003,12 @@ static bool PartyMenu(int client)
 	Menu menu = new Menu(Preference_PartyMenuH);
 	
 	SetGlobalTransTarget(client);
-	int lang = GetClientLanguage(client);
 	
 	int special = PartyMainBoss[PartyLeader[client]];
 	
 	char data[16], buffer[128];
-	if(!Bosses_GetBossName(special, buffer, sizeof(buffer), lang, "group"))
-		Bosses_GetBossName(special, buffer, sizeof(buffer), lang);
+	if(!Bosses_GetBossName(special, buffer, sizeof(buffer), "group"))
+		Bosses_GetBossName(special, buffer, sizeof(buffer));
 	
 	menu.SetTitle("%t", "Boss Party Menu", buffer);
 	
@@ -1019,7 +1016,7 @@ static bool PartyMenu(int client)
 	for(int i; i<MAXTF2PLAYERS; i++)	// In case someone made an infinite loop boss
 	{
 		ConfigMap cfg = Bosses_GetConfig(special);
-		Bosses_GetBossNameCfg(cfg, buffer, sizeof(buffer), lang);
+		Bosses_GetBossNameCfg(cfg, buffer, sizeof(buffer));
 		
 		int target = FindPartyMember(PartyLeader[client], special);
 		if(target)
@@ -1077,7 +1074,7 @@ public int Preference_PartyMenuH(Menu menu, MenuAction action, int client, int c
 			if(special == -1)
 			{
 				Preference_ClientDisconnect(client);
-				Bosses_GetBossName(PartyChoice[client], buffer, sizeof(buffer), GetClientLanguage(client));
+				Bosses_GetBossName(PartyChoice[client], buffer, sizeof(buffer));
 				FPrintToChat(client, "%t", "Party You Left", buffer);
 				BossMenu(client);
 			}
@@ -1087,14 +1084,14 @@ public int Preference_PartyMenuH(Menu menu, MenuAction action, int client, int c
 				if(target)
 				{
 					PartyLeader[target] = 0;
-					Bosses_GetBossName(PartyChoice[target], buffer, sizeof(buffer), GetClientLanguage(target));
+					Bosses_GetBossName(PartyChoice[target], buffer, sizeof(buffer));
 					FPrintToChat(target, "%t", "Party You Kicked", buffer);
 					
 					for(int other = 1; other <= MaxClients; other++)
 					{
 						if(target != other && PartyLeader[client] == PartyLeader[other])
 						{
-							Bosses_GetBossName(PartyChoice[target], buffer, sizeof(buffer), GetClientLanguage(other));
+							Bosses_GetBossName(PartyChoice[target], buffer, sizeof(buffer));
 							FPrintToChat(other, "%t", "Party Member Kicked", target, buffer);
 						}
 					}
@@ -1117,7 +1114,7 @@ public int Preference_PartyMenuH(Menu menu, MenuAction action, int client, int c
 						
 						Menu menu2 = new Menu(Preference_PartyInviteH);
 						
-						Bosses_GetBossName(special, buffer, sizeof(buffer), GetClientLanguage(client));
+						Bosses_GetBossName(special, buffer, sizeof(buffer));
 						menu2.SetTitle("%t\n ", "Boss Party Menu", buffer);
 						
 						char buffer2[16];
@@ -1144,7 +1141,7 @@ public int Preference_PartyMenuH(Menu menu, MenuAction action, int client, int c
 				SetGlobalTransTarget(client);
 				
 				Menu menu2 = new Menu(Preference_PartyInviteH);
-				if(Bosses_GetBossName(special, buffer, sizeof(buffer), GetClientLanguage(client), "description"))
+				if(Bosses_GetBossName(special, buffer, sizeof(buffer), "description"))
 				{
 					menu2.SetTitle("%t\n%s\n ", "Boss Party Menu", NULL_STRING, buffer);
 				}
@@ -1193,7 +1190,7 @@ public int Preference_PartyInviteH(Menu menu, MenuAction action, int client, int
 					{
 						if(target != other && PartyLeader[other] == client)
 						{
-							Bosses_GetBossName(PartyChoice[target], buffer, sizeof(buffer), GetClientLanguage(other));
+							Bosses_GetBossName(PartyChoice[target], buffer, sizeof(buffer));
 							FPrintToChat(other, "%t", "Party Member Joined", target, buffer);
 						}
 					}
@@ -1202,7 +1199,7 @@ public int Preference_PartyInviteH(Menu menu, MenuAction action, int client, int
 				{
 					PartyInvite[target][client] = PartyInvite[client][client];
 					
-					Bosses_GetBossName(PartyInvite[client][client], buffer, sizeof(buffer), GetClientLanguage(target));
+					Bosses_GetBossName(PartyInvite[client][client], buffer, sizeof(buffer));
 					FPrintToChat(target, "%t", "Party Member Invited", client, buffer);
 				}
 			}
@@ -1226,15 +1223,14 @@ static bool InviteMenu(int client)
 			Menu menu = new Menu(Preference_InviteMenuH);
 			
 			SetGlobalTransTarget(client);
-			int lang = GetClientLanguage(client);
 			
 			int special = PartyMainBoss[PartyLeader[client]];
 			
 			char buffer1[64], buffer2[128];
-			if(!Bosses_GetBossName(special, buffer1, sizeof(buffer1), lang, "group"))
-				Bosses_GetBossName(special, buffer1, sizeof(buffer1), lang);
+			if(!Bosses_GetBossName(special, buffer1, sizeof(buffer1), "group"))
+				Bosses_GetBossName(special, buffer1, sizeof(buffer1));
 			
-			Bosses_GetBossName(PartyInvite[client][target], buffer2, sizeof(buffer2), lang);
+			Bosses_GetBossName(PartyInvite[client][target], buffer2, sizeof(buffer2));
 			
 			menu.SetTitle("%t%t", "Boss Party Menu", buffer1, "Boss Party Invited", target, buffer2);
 			
@@ -1278,7 +1274,7 @@ public int Preference_InviteMenuH(Menu menu, MenuAction action, int client, int 
 			{
 				if(choice)
 				{
-					Bosses_GetBossName(PartyInvite[client][target], buffer, sizeof(buffer), GetClientLanguage(target));
+					Bosses_GetBossName(PartyInvite[client][target], buffer, sizeof(buffer));
 					FPrintToChat(target, "%t", "Party Member Left", client, buffer);
 					
 					PartyInvite[client][target] = -1;
@@ -1293,14 +1289,14 @@ public int Preference_InviteMenuH(Menu menu, MenuAction action, int client, int 
 					{
 						if(PartyInvite[client][other] != -1)
 						{
-							Bosses_GetBossName(PartyInvite[client][other], buffer, sizeof(buffer), GetClientLanguage(other));
+							Bosses_GetBossName(PartyInvite[client][other], buffer, sizeof(buffer));
 							FPrintToChat(other, "%t", "Party Member Left", client, buffer);
 							
 							PartyInvite[client][other] = -1;
 						}
 						else if(client != other && PartyLeader[other] == target)
 						{
-							Bosses_GetBossName(PartyChoice[client], buffer, sizeof(buffer), GetClientLanguage(other));
+							Bosses_GetBossName(PartyChoice[client], buffer, sizeof(buffer));
 							FPrintToChat(other, "%t", "Party Member Joined", client, buffer);
 						}
 					}
@@ -1495,7 +1491,6 @@ public Action Preference_ForceBossCmd(int client, int args)
 		GetCmdArgString(name, sizeof(name));
 		
 		SetGlobalTransTarget(client);
-		int lang = client ? GetClientLanguage(client) : GetServerLanguage();
 		
 		int special = -1;
 		if(name[0] == '#')
@@ -1504,7 +1499,7 @@ public Action Preference_ForceBossCmd(int client, int args)
 		}
 		else
 		{
-			special = Bosses_GetByName(name, lang);
+			special = Bosses_GetByName(name);
 		}
 		
 		if(special == -1)
@@ -1514,12 +1509,12 @@ public Action Preference_ForceBossCmd(int client, int args)
 		else if(!client || Bosses_CanAccessBoss(client, special, true))
 		{
 			BossOverride = special;
-			Bosses_GetBossName(special, name, sizeof(name), lang);
+			Bosses_GetBossName(special, name, sizeof(name));
 			FReplyToCommand(client, "%t", "Boss Overriden", name);
 		}
 		else
 		{
-			Bosses_GetBossName(special, name, sizeof(name), lang);
+			Bosses_GetBossName(special, name, sizeof(name));
 			FReplyToCommand(client, "%t", "Boss No Access", name);
 		}
 	}
@@ -1551,14 +1546,13 @@ static void ForceBossMenu(int client, int item)
 	menu.AddItem("-1", name, BossOverride == -1 ? ITEMDRAW_DISABLED : ITEMDRAW_DEFAULT);
 	
 	char num[12];
-	int lang = GetClientLanguage(client);
 	int length = Bosses_GetConfigLength();
 	for(int i; i < length; i++)
 	{
 		if(Bosses_CanAccessBoss(client, i, true))
 		{
 			IntToString(i, num, sizeof(num));
-			Bosses_GetBossName(i, name, sizeof(name), lang);
+			Bosses_GetBossName(i, name, sizeof(name));
 			menu.AddItem(num, name, BossOverride == i ? ITEMDRAW_DISABLED : ITEMDRAW_DEFAULT);
 		}
 	}
@@ -1619,7 +1613,7 @@ public void Preference_DisplayBosses(DataPack pack)
 		if(cfg)
 		{
 			char buffer[64];
-			Bosses_GetBossNameCfg(cfg, buffer, sizeof(buffer), GetClientLanguage(client));
+			Bosses_GetBossNameCfg(cfg, buffer, sizeof(buffer));
 			PrintToConsole(client, "#%d %s", index, buffer);
 			
 			pack.Position--;
@@ -1839,12 +1833,10 @@ public Action Preference_DifficultyMenuCmd(int client, int args)
 			UpdateDataBase[client] = true;
 		}
 		else if(args && client)
-		{
-			int lang = GetClientLanguage(client);
-			
+		{			
 			char buffer[64];
 			GetCmdArgString(buffer, sizeof(buffer));
-			if(GetDiffByName(buffer, buffer, sizeof(buffer), lang))
+			if(GetDiffByName(buffer, buffer, sizeof(buffer)))
 			{
 				int index = -1;
 				if(DiffListing[client])
@@ -1860,7 +1852,7 @@ public Action Preference_DifficultyMenuCmd(int client, int args)
 					Preference_AddDifficulty(client, buffer);
 					UpdateDataBase[client] = true;
 					
-					Bosses_GetBossNameCfg(cfg, buffer, sizeof(buffer), lang);
+					Bosses_GetBossNameCfg(cfg, buffer, sizeof(buffer));
 					FReplyToCommand(client, "%t", "Boss Whitelisted", buffer);
 				}
 				else
@@ -1868,7 +1860,7 @@ public Action Preference_DifficultyMenuCmd(int client, int args)
 					DiffListing[client].Erase(index);
 					UpdateDataBase[client] = true;
 					
-					Bosses_GetBossNameCfg(cfg, buffer, sizeof(buffer), lang);
+					Bosses_GetBossNameCfg(cfg, buffer, sizeof(buffer));
 					FReplyToCommand(client, "%t", "Boss Blacklisted", buffer);
 				}
 			}
@@ -1880,7 +1872,6 @@ public Action Preference_DifficultyMenuCmd(int client, int args)
 		else
 		{
 			char buffer[64];
-			int lang = client ? GetClientLanguage(client) : -1;
 			SortedSnapshot snap = CreateSortedSnapshot(Difficulties);
 			
 			PackVal val;
@@ -1896,7 +1887,7 @@ public Action Preference_DifficultyMenuCmd(int client, int args)
 					{
 						PrintToServer(section);
 					}
-					else if(Bosses_GetBossNameCfg(val.cfg, buffer, sizeof(buffer), lang))
+					else if(Bosses_GetBossNameCfg(val.cfg, buffer, sizeof(buffer)))
 					{
 						PrintToConsole(client, buffer);
 					}
@@ -1916,7 +1907,7 @@ public Action Preference_DifficultyMenuCmd(int client, int args)
 		
 		char buffer[64];
 		GetCmdArgString(buffer, sizeof(buffer));
-		if(GetDiffByName(buffer, buffer, sizeof(buffer), GetClientLanguage(client)))
+		if(GetDiffByName(buffer, buffer, sizeof(buffer)))
 		{
 			ViewingPage[client] = 0;
 			DifficultyMenu(client, buffer);
@@ -1950,11 +1941,9 @@ static void DifficultyMenu(int client, const char[] name = NULL_STRING)
 		if(cfg)
 		{
 			Menu menu = new Menu(Preference_DifficultyMenuItemH);
-			
-			int lang = GetClientLanguage(client);
-			
+						
 			char buffer[512];
-			if(Bosses_GetBossNameCfg(cfg, buffer, sizeof(buffer), lang, "description"))
+			if(Bosses_GetBossNameCfg(cfg, buffer, sizeof(buffer), "description"))
 			{
 				menu.SetTitle("%t\n%s\n ", "Difficulty Menu", buffer);
 			}
@@ -1969,7 +1958,7 @@ static void DifficultyMenu(int client, const char[] name = NULL_STRING)
 			}
 			else
 			{
-				if(!Bosses_GetBossNameCfg(cfg, buffer, sizeof(buffer), lang))
+				if(!Bosses_GetBossNameCfg(cfg, buffer, sizeof(buffer)))
 					strcopy(buffer, sizeof(buffer), name);
 				
 				Format(buffer, sizeof(buffer), "%t", (DiffListing[client] && DiffListing[client].FindString(name) != -1) ? "Boss Blacklist" : "Boss Whitelist", buffer);
@@ -1999,7 +1988,6 @@ static void DifficultyMenu(int client, const char[] name = NULL_STRING)
 			menu.AddItem(NULL_STRING, buffer, DiffListing[client] ? ITEMDRAW_DEFAULT : ITEMDRAW_DISABLED);
 		}
 		
-		int lang = GetClientLanguage(client);
 		SortedSnapshot snap = CreateSortedSnapshot(Difficulties);
 		
 		PackVal val;
@@ -2011,7 +1999,7 @@ static void DifficultyMenu(int client, const char[] name = NULL_STRING)
 			snap.GetKey(i, section, length);
 			if(Difficulties.GetArray(section, val, sizeof(val)) && val.tag == KeyValType_Section && val.cfg)
 			{
-				if(!Bosses_GetBossNameCfg(val.cfg, buffer, sizeof(buffer), lang))
+				if(!Bosses_GetBossNameCfg(val.cfg, buffer, sizeof(buffer)))
 					strcopy(buffer, sizeof(buffer), section);
 				
 				if(!random)
@@ -2109,7 +2097,7 @@ public int Preference_DifficultyMenuItemH(Menu menu, MenuAction action, int clie
 	return 0;
 }
 
-static bool GetDiffByName(const char[] name, char[] buffer, int length, int lang = -1)
+static bool GetDiffByName(const char[] name, char[] buffer, int length)
 {
 	int similarDiff = -1;
 	int size1 = strlen(name);
@@ -2126,7 +2114,7 @@ static bool GetDiffByName(const char[] name, char[] buffer, int length, int lang
 		snap.GetKey(i, section, lengt);
 		if(Difficulties.GetArray(section, val, sizeof(val)) && val.tag == KeyValType_Section && val.cfg)
 		{
-			if(!Bosses_GetBossNameCfg(val.cfg, buffer, length, lang))
+			if(!Bosses_GetBossNameCfg(val.cfg, buffer, length))
 				strcopy(buffer, length, section);
 			
 			if(StrEqual(name, buffer, false))
