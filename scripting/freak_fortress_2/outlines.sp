@@ -1,6 +1,6 @@
 int g_Glow[MAXPLAYERS + 1] = {-1, ...};
 
-int TF2_CreateGlow(int target, int color[4] = {255, 255, 255, 255}) {
+stock int TF2_CreateGlow(int target, int color[4] = {255, 255, 255, 255}) {
 	char sClassname[64];
 	GetEntityClassname(target, sClassname, sizeof(sClassname));
 
@@ -62,7 +62,7 @@ void GiveOutline(int client) {
 	}
 
 	if (g_Glow[client] == -1) {
-		g_Glow[client] = TF2_CreateGlow(client, GetClientTeam(client) == 2 ? {255, 0, 0, 255} : {0, 0, 255, 255});
+		//g_Glow[client] = TF2_CreateGlow(client, GetClientTeam(client) == 2 ? {255, 0, 0, 255} : {0, 0, 255, 255});
 	}
 }
 
