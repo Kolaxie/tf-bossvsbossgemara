@@ -143,27 +143,7 @@ void Events_CheckAlivePlayers(int exclude = 0, bool alive = true, bool resetMax 
 }
 
 public void Events_RoundInit(Event event, const char[] name, bool dontBroadcast) {
-	// int timer = FindEntityByClassname(-1, "team_round_timer");
-
-	// if (!IsValidEntity(timer)) {
-	// 	timer = CreateEntityByName("team_round_timer");
-	// 	DispatchKeyValueInt(timer, "auto_countdown", 1);
-	// 	DispatchKeyValueInt(timer, "max_length", 60 * 10);
-	// 	DispatchKeyValueInt(timer, "reset_time", 1);
-	// 	DispatchKeyValueInt(timer, "setup_length", 0);
-	// 	DispatchKeyValueInt(timer, "show_in_hud", 1);
-	// 	DispatchKeyValueInt(timer, "show_time_remaining", 1);
-	// 	DispatchKeyValueInt(timer, "start_paused", 0);
-	// 	DispatchKeyValueInt(timer, "timer_length", 60 * 10);
-	// 	DispatchKeyValueInt(timer, "StartDisabled", 0);
-	// 	DispatchSpawn(timer);
-	// 	ActivateEntity(timer);
-	// } else {
-	// 	SetVariantInt(60 * 10);
-	// 	AcceptEntityInput(timer, "SetTime");
-	// }
-
-	// g_TF2Timer = timer;
+	SyncTF2Timer();
 }
 
 public void Events_RoundStart(Event event, const char[] name, bool dontBroadcast)
@@ -172,6 +152,7 @@ public void Events_RoundStart(Event event, const char[] name, bool dontBroadcast
 	LastMann = false;
 	Gamemode_RoundStart();
 	ClearOutlines();
+	SyncTF2Timer();
 }
 
 public void Events_RoundEnd(Event event, const char[] name, bool dontBroadcast)

@@ -9,7 +9,7 @@ enum StatusCode {
 	StatusCode_Debugging
 }
 
-public void LogDebug(StatusCode code, const char[] format, any ...) {
+public void LogDebugger(StatusCode code, const char[] format, any ...) {
 	char buffer[1024];
 	VFormat(buffer, sizeof(buffer), format, 3);
 
@@ -20,6 +20,51 @@ public void LogDebug(StatusCode code, const char[] format, any ...) {
 	BuildPath(Path_SM, path, sizeof(path), "logs/debug-%s.log", plugin);
 
 	Format(buffer, sizeof(buffer), "[Status Code: %i] - %s", view_as<int>(code), buffer);
+
+	LogToFile(path, buffer);
+}
+
+public void LogSuccess(const char[] format, any ...) {
+	char buffer[1024];
+	VFormat(buffer, sizeof(buffer), format, 2);
+
+	char plugin[64];
+	GetPluginInfo(null, PlInfo_Name, plugin, sizeof(plugin));
+
+	char path[PLATFORM_MAX_PATH];
+	BuildPath(Path_SM, path, sizeof(path), "logs/debug-%s.log", plugin);
+
+	Format(buffer, sizeof(buffer), "[Status Code: %i] - %s", view_as<int>(StatusCode_Success), buffer);
+
+	LogToFile(path, buffer);
+}
+
+public void LogFailure(const char[] format, any ...) {
+	char buffer[1024];
+	VFormat(buffer, sizeof(buffer), format, 2);
+
+	char plugin[64];
+	GetPluginInfo(null, PlInfo_Name, plugin, sizeof(plugin));
+
+	char path[PLATFORM_MAX_PATH];
+	BuildPath(Path_SM, path, sizeof(path), "logs/debug-%s.log", plugin);
+
+	Format(buffer, sizeof(buffer), "[Status Code: %i] - %s", view_as<int>(StatusCode_Failure), buffer);
+
+	LogToFile(path, buffer);
+}
+
+public void LogDebugging(const char[] format, any ...) {
+	char buffer[1024];
+	VFormat(buffer, sizeof(buffer), format, 2);
+
+	char plugin[64];
+	GetPluginInfo(null, PlInfo_Name, plugin, sizeof(plugin));
+
+	char path[PLATFORM_MAX_PATH];
+	BuildPath(Path_SM, path, sizeof(path), "logs/debug-%s.log", plugin);
+
+	Format(buffer, sizeof(buffer), "[Status Code: %i] - %s", view_as<int>(StatusCode_Debugging), buffer);
 
 	LogToFile(path, buffer);
 }

@@ -1407,26 +1407,72 @@ int Bosses_GetConfigLength()
 	return BossList.Length;
 }
 
-int Bosses_GetByName(const char[] name)
+int Bosses_GetByName(const char[] name, bool exact = false, bool enabled = true, int lang = -1)
 {
 	if (BossList == null || BossList.Length == 0) {
 		return -1;
 	}
 
+	int size1 = exact ? 0 : strlen(name);
+	int similarChars;
+	
+	char language[5];
+	if (lang != -1) {
+		GetLanguageInfo(lang, language, sizeof(language));
+	}
+
 	int bossIndex = -1;
 	
-	char buffer[64]; ConfigMap cfg;
+	bool found; char buffer[64]; ConfigMap cfg;
 	for (int i = 0; i < BossList.Length; i++)
 	{
+		found = false;
 		buffer[0] = '\0';
-		cfg = null;
+		cfg = BossList.Get(i);
 
-		if ((cfg = BossList.Get(i)) == null) {
-			continue;
-		}
+		if (!enabled || (cfg.GetBool("enabled", found) && found))
+		{
+			if (lang != -1)
+			{
+				Format(buffer, sizeof(buffer), "name_%s", language);
+				found = view_as<bool>(cfg.Get(buffer, buffer, sizeof(buffer)));
+			}
 
-		if (cfg.Get("name", buffer, sizeof(buffer)) > 0 && StrEqual(name, buffer, false)) {
-			return i;
+			if (found || cfg.Get("name", buffer, sizeof(buffer)))
+			{
+				if (StrEqual(name, buffer, false)) {
+					return i;
+				}
+				
+				if (!exact)
+				{
+					int bump = StrContains(buffer, name, false);
+
+					if (bump == -1) {
+						bump = 0;
+					}
+					
+					int size2 = strlen(buffer) - bump;
+
+					if (size2 > size1) {
+						size2 = size1;
+					}
+					
+					int amount;
+					for (int c; c < size2; c++)
+					{
+						if(CharToLower(name[c]) == CharToLower(buffer[c + bump])) {
+							amount++;
+						}
+					}
+					
+					if (amount > similarChars)
+					{
+						similarChars = amount;
+						bossIndex = i;
+					}
+				}
+			}
 		}
 	}
 

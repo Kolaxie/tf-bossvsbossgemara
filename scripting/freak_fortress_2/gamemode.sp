@@ -395,14 +395,14 @@ void Gamemode_RoundSetup()
 				AcceptEntityInput(g_TF2Timer, "Resume");
 
 				SetVariantBool(true);
-				AcceptEntityInput(g_TF2Timer, "ShowInHud");
+				AcceptEntityInput(g_TF2Timer, "ShowInHUD");
 
 			} else {
 
 				AcceptEntityInput(g_TF2Timer, "Pause");
 
 				SetVariantBool(false);
-				AcceptEntityInput(g_TF2Timer, "ShowInHud");
+				AcceptEntityInput(g_TF2Timer, "ShowInHUD");
 				
 			}
 
