@@ -228,7 +228,7 @@ public void Events_PlayerSpawn(Event event, const char[] name, bool dontBroadcas
 	}
 
 	if (client > 0 && IsClientInGame(client) && IsPlayerAlive(client)) {
-		AttachSprite(client, GetClientTeam(client) == 2 ? SPRITE_RED : SPRITE_BLUE, 25.0);
+		AttachSprite(client, GetClientTeam(client) == 2 ? PARTICLE_RED : PARTICLE_BLUE, 25.0);
 		GiveOutline(client);
 	}
 
