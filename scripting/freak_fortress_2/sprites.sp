@@ -44,7 +44,17 @@ int CreateSprite(float origin[3], const char[] sprite) {
 	TeleportEntity(entity, origin, NULL_VECTOR, NULL_VECTOR);
 	//PrintToChatAll("Sprite created!");
 
+	SDKHook(entity, SDKHook_SetTransmit, OnSpriteTransmit);
+
 	return entity;
+}
+
+public Action OnSpriteTransmit(int entity, int other) {
+	if (GetEntPropEnt(entity, Prop_Data, "m_pParent") == other) {
+		return Plugin_Stop;
+	}
+
+	return Plugin_Continue;
 }
 
 bool RemoveSprite(int client) {
