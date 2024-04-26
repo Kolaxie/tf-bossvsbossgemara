@@ -1753,7 +1753,7 @@ void Bosses_CreateFromConfig(int client, ConfigMap cfg, int team, int leader = 0
 		int companion;
 		bool disband;
 		
-		if (g_FF2Party && FF2Party_IsEnabled() && players.Length > 1) {
+		if (g_FF2Party && FF2Party_IsEnabled() && players != null && players.Length > 1) {
 			int total;
 			int[] clients = new int[MaxClients];
 

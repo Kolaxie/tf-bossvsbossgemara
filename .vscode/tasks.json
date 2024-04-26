@@ -23,6 +23,7 @@
                 "-i${workspaceFolder}\\scripting",
                 "-i${workspaceFolder}\\include",
                 "-o${workspaceFolder}\\plugins\\${fileBasenameNoExtension}.smx"
+                // "-oD:\\servers\\tf2\\serverfiles\\tf\\addons\\sourcemod\\plugins\\${fileBasenameNoExtension}.smx"
             ],
 
             "group": {
