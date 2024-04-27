@@ -65,6 +65,10 @@ void GiveOutline(int client) {
 		return;
 	}
 
+	if (client < 1 || client > MaxClients || !IsClientConnected(client) || !IsClientInGame(client) || !IsPlayerAlive(client)) {
+		return;
+	}
+
 	if (g_Glow[client] == -1) {
 		g_Glow[client] = TF2_CreateGlow(client, GetClientTeam(client) == 2 ? {255, 0, 0, 255} : {0, 0, 255, 255});
 	}
