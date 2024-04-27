@@ -48,6 +48,9 @@ void ConVar_PluginStart()
 	Cvar[Telefrags] = CreateConVar("ff2_game_telefrag", "5000", "How much damage telefrags do on bosses");
 	Cvar[SubpluginFolder] = CreateConVar("ff2_plugin_subplugins", "freaks", "Folder to load/unload when bosses are at play relative to the plugins folder.");
 	Cvar[FileCheck] = CreateConVar("ff2_plugin_checkfiles", "1", "If to check and warn about missing files from bosses. (Disabling this can help load times.)", _, true, 0.0, true, 1.0);
+	Cvar[SpritesEnable] = CreateConVar("ff2_plugin_sprites_enable", "1", "Should sprites be enabled above players heads?", _, true, 0.0, true, 1.0);
+	Cvar[GlowEnable] = CreateConVar("ff2_plugin_glow_enable", "1", "Should glows be enabled based on how much time is left?", _, true, 0.0, true, 1.0);
+	Cvar[GlowTimeLeft] = CreateConVar("ff2_plugin_glow_timeleft", "10", "How much time is left before glows are disabled?", _, true, 0.0);
 	
 	CreateConVar("ff2_oldjump", "1", "Backwards Compatibility ConVar", FCVAR_DONTRECORD|FCVAR_HIDDEN, true, 0.0, true, 1.0);
 	CreateConVar("ff2_base_jumper_stun", "0", "Backwards Compatibility ConVar", FCVAR_DONTRECORD|FCVAR_HIDDEN, true, 0.0, true, 1.0);

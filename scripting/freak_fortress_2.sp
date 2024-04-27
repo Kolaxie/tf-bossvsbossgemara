@@ -211,6 +211,11 @@ enum
 	//BonusRoundTime,
 	Tournament,
 	WaitingTime,
+
+	SpritesEnable,
+
+	GlowEnable,
+	GlowTimeLeft,
 	
 	Cvar_MAX
 }

@@ -35,7 +35,7 @@ bool IsEndOfRound() {
 		return false;
 	}
 
-	return timeleft <= 10 * 60;
+	return timeleft <= (Cvar[GlowTimeLeft].IntValue * 60);
 }
 
 void Outlines_Tick() {
@@ -57,12 +57,16 @@ void GiveOutlines() {
 }
 
 void GiveOutline(int client) {
+	if (!Cvar[GlowEnable].BoolValue) {
+		return;
+	}
+
 	if (!IsEndOfRound()) {
 		return;
 	}
 
 	if (g_Glow[client] == -1) {
-		//g_Glow[client] = TF2_CreateGlow(client, GetClientTeam(client) == 2 ? {255, 0, 0, 255} : {0, 0, 255, 255});
+		g_Glow[client] = TF2_CreateGlow(client, GetClientTeam(client) == 2 ? {255, 0, 0, 255} : {0, 0, 255, 255});
 	}
 }
 

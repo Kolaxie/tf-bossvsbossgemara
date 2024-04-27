@@ -19,6 +19,8 @@ int AttachSprite(int client, const char[] sprite, float offset = 25.0) {
 		return entity;
 	}
 
+	SetEdictFlags(client, FL_EDICT_ALWAYS | FL_EDICT_FULL);
+
 	SetVariantString("!activator");
 	AcceptEntityInput(entity, "SetParent", client, entity, 0);
 
@@ -28,6 +30,10 @@ int AttachSprite(int client, const char[] sprite, float offset = 25.0) {
 }
 
 int CreateSprite(float origin[3], const char[] sprite) {
+	if (!Cvar[SpritesEnable].BoolValue) {
+		return -1;
+	}
+
 	int entity = CreateEntityByName("info_particle_system");
 
 	if (!IsValidEntity(entity)) {
@@ -42,14 +48,16 @@ int CreateSprite(float origin[3], const char[] sprite) {
 	ActivateEntity(entity);
 	
 	TeleportEntity(entity, origin, NULL_VECTOR, NULL_VECTOR);
-	//PrintToChatAll("Sprite created!");
 
+	SetEdictFlags(entity, FL_EDICT_ALWAYS | FL_EDICT_FULL);
 	SDKHook(entity, SDKHook_SetTransmit, OnSpriteTransmit);
 
 	return entity;
 }
 
 public Action OnSpriteTransmit(int entity, int other) {
+	SetEdictFlags(entity, FL_EDICT_ALWAYS | FL_EDICT_FULL);
+
 	if (GetEntPropEnt(entity, Prop_Data, "m_pParent") == other) {
 		return Plugin_Stop;
 	}
