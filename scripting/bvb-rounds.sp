@@ -347,6 +347,7 @@ public ItemResult TextStore_Item(int client, bool equipped, KeyValues item, int 
 		}
 
 		if (bossIndex == -1) {
+			CPrintToChat(client, "{green}[FF2]{default} The boss '%s' is not valid.", boss);
 			return Item_None;
 		}
 

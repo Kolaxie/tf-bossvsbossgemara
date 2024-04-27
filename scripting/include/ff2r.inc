@@ -290,7 +290,7 @@ stock bool FF2R_EmitBossSoundToAll(const char[] key, int boss, const char[] requ
 
 native int FF2R_Bosses_GetConfigLength();
 native ConfigMap FF2R_Bosses_GetConfig(int special);
-native int FF2R_Bosses_GetByName(const char[] name);
+native int FF2R_Bosses_GetByName(const char[] name, bool exact = false, bool require_enabled = true, int lang = -1);
 
 methodmap ConfigData < ConfigMap
 {

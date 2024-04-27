@@ -106,7 +106,7 @@ void Preference_AddBoss(int client, const char[] name)
 	}
 	else
 	{
-		int special = Bosses_GetByKey(name, true, false, _, "filename");
+		int special = Bosses_GetByKey("filename", name, true, false);
 		if(special != -1 && Bosses_CanAccessBoss(client, special, false, _, false))
 			BossListing[client].Push(special);
 	}
@@ -233,7 +233,7 @@ int Preference_PickBoss(int client, int team = -1)
 				
 				if(length > 1 && Client(client).GetLastPlayed(buffer, sizeof(buffer)))
 				{
-					count = list.FindValue(Bosses_GetByKey(buffer, true, _, _, "filename"));
+					count = list.FindValue(Bosses_GetByKey("filename", buffer, true));
 					if(count != -1)
 					{
 						list.Erase(count);

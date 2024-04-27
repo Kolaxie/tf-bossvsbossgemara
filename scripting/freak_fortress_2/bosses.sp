@@ -1407,7 +1407,7 @@ int Bosses_GetConfigLength()
 	return BossList.Length;
 }
 
-int Bosses_GetByName(const char[] name, bool exact = false, bool enabled = true, int lang = -1)
+int Bosses_GetByName(const char[] name, bool exact = false, bool require_enabled = true, int lang = -1)
 {
 	if (BossList == null || BossList.Length == 0) {
 		return -1;
@@ -1423,29 +1423,28 @@ int Bosses_GetByName(const char[] name, bool exact = false, bool enabled = true,
 
 	int bossIndex = -1;
 	
-	bool found; char buffer[64]; ConfigMap cfg;
-	for (int i = 0; i < BossList.Length; i++)
-	{
+	bool enabled; bool found; char key[64]; char buffer[64]; ConfigMap cfg;
+	for (int i = 0; i < BossList.Length; i++) {
+		enabled = false;
 		found = false;
+		key[0] = '\0';
 		buffer[0] = '\0';
 		cfg = BossList.Get(i);
 
-		if (!enabled || (cfg.GetBool("enabled", found) && found))
-		{
-			if (lang != -1)
-			{
-				Format(buffer, sizeof(buffer), "name_%s", language);
-				found = view_as<bool>(cfg.Get(buffer, buffer, sizeof(buffer)));
+		if (!require_enabled || (cfg.GetBool("enabled", enabled) && enabled)) {
+			Format(key, sizeof(key), "name");
+
+			if (lang != -1) {
+				Format(key, sizeof(key), "name_%s", language);
+				found = view_as<bool>(cfg.Get(key, buffer, sizeof(buffer)));
 			}
 
-			if (found || cfg.Get("name", buffer, sizeof(buffer)))
-			{
+			if (found || cfg.Get(key, buffer, sizeof(buffer))) {
 				if (StrEqual(name, buffer, false)) {
 					return i;
 				}
 				
-				if (!exact)
-				{
+				if (!exact) {
 					int bump = StrContains(buffer, name, false);
 
 					if (bump == -1) {
@@ -1459,15 +1458,13 @@ int Bosses_GetByName(const char[] name, bool exact = false, bool enabled = true,
 					}
 					
 					int amount;
-					for (int c; c < size2; c++)
-					{
+					for (int c; c < size2; c++) {
 						if(CharToLower(name[c]) == CharToLower(buffer[c + bump])) {
 							amount++;
 						}
 					}
 					
-					if (amount > similarChars)
-					{
+					if (amount > similarChars) {
 						similarChars = amount;
 						bossIndex = i;
 					}
@@ -1479,13 +1476,13 @@ int Bosses_GetByName(const char[] name, bool exact = false, bool enabled = true,
 	return bossIndex;
 }
 
-int Bosses_GetByKey(const char[] name, bool exact = true, bool enabled = true, int lang = -1, const char[] key)
+int Bosses_GetByKey(const char[] key, const char[] value, bool exact = true, bool require_enabled = true, int lang = -1)
 {
 	if (BossList == null || BossList.Length == 0) {
 		return -1;
 	}
 
-	int size1 = exact ? 0 : strlen(name);
+	int size1 = exact ? 0 : strlen(value);
 	int similarChars;
 	
 	char language[5];
@@ -1495,30 +1492,34 @@ int Bosses_GetByKey(const char[] name, bool exact = true, bool enabled = true, i
 
 	int bossIndex = -1;
 	
-	bool found; char buffer[64]; ConfigMap cfg;
+	bool enabled; bool found; char search[64]; char buffer[64]; ConfigMap cfg;
 	for (int i = 0; i < BossList.Length; i++)
 	{
+		enabled = false;
 		found = false;
+		search[0] = '\0';
 		buffer[0] = '\0';
 		cfg = BossList.Get(i);
 
-		if (!enabled || (cfg.GetBool("enabled", found) && found))
+		if (!require_enabled || (cfg.GetBool("enabled", enabled) && enabled))
 		{
+			Format(search, sizeof(search), "%s", key);
+
 			if (lang != -1)
 			{
-				Format(buffer, sizeof(buffer), "%s_%s", key, language);
-				found = view_as<bool>(cfg.Get(buffer, buffer, sizeof(buffer)));
+				Format(search, sizeof(search), "%s_%s", key, language);
+				found = view_as<bool>(cfg.Get(search, buffer, sizeof(buffer)));
 			}
 
-			if (found || cfg.Get(key, buffer, sizeof(buffer)))
+			if (found || cfg.Get(search, buffer, sizeof(buffer)))
 			{
-				if (StrEqual(name, buffer, false)) {
+				if (StrEqual(value, buffer, false)) {
 					return i;
 				}
 				
 				if (!exact)
 				{
-					int bump = StrContains(buffer, name, false);
+					int bump = StrContains(buffer, value, false);
 
 					if (bump == -1) {
 						bump = 0;
@@ -1533,7 +1534,7 @@ int Bosses_GetByKey(const char[] name, bool exact = true, bool enabled = true, i
 					int amount;
 					for (int c; c < size2; c++)
 					{
-						if(CharToLower(name[c]) == CharToLower(buffer[c + bump])) {
+						if(CharToLower(value[c]) == CharToLower(buffer[c + bump])) {
 							amount++;
 						}
 					}

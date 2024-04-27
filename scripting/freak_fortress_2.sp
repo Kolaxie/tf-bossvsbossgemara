@@ -8,6 +8,8 @@
 #include <tf2_stocks>
 #include <adminmenu>
 #include <clientprefs>
+
+#include <ff2r>
 #include <adt_trie_sort>
 #include <cfgmap>
 #include <morecolors>
@@ -324,7 +326,11 @@ public int Native_GetByName(Handle plugin, int numParams) {
 	char[] name = new char[size + 1];
 	GetNativeString(1, name, size + 1);
 
-	return Bosses_GetByName(name);
+	bool exact = GetNativeCell(2);
+	bool require_enabled = GetNativeCell(3);
+	int lang = GetNativeCell(4);
+
+	return Bosses_GetByName(name, exact, require_enabled, lang);
 }
 
 public void OnPluginStart()
