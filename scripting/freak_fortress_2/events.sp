@@ -144,6 +144,12 @@ void Events_CheckAlivePlayers(int exclude = 0, bool alive = true, bool resetMax 
 
 public void Events_RoundInit(Event event, const char[] name, bool dontBroadcast) {
 	SyncTF2Timer();
+
+	g_IsTeams = false;
+	
+	if (Cvar[TeamsEnabled].BoolValue && GetRandomFloat(0.0, 1.0) > Cvar[TeamsChance].FloatValue) {
+		CreateTimer(Cvar[TeamsTimer].FloatValue, Timer_StartTeams, _, TIMER_FLAG_NO_MAPCHANGE);
+	}
 }
 
 public void Events_RoundStart(Event event, const char[] name, bool dontBroadcast)

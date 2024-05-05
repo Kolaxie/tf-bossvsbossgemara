@@ -20,6 +20,16 @@ public Plugin myinfo = {
 
 public void OnPluginStart() {
 	HookEvent("player_death", Event_OnPlayerDeath);
+
+	for(int clientIdx = 1; clientIdx <= MaxClients; clientIdx++)
+	{
+		if(IsClientInGame(clientIdx))
+		{
+			BossData cfg = FF2R_GetBossData(clientIdx);			
+			if(cfg)
+				FF2R_OnBossCreated(clientIdx, cfg, false);
+		}
+	}
 }
 
 public Action OnPlayerRunCmd(int client, int& buttons, int& impulse, float vel[3], float angles[3], int& weapon, int& subtype, int& cmdnum, int& tickcount, int& seed, int mouse[2]) {
@@ -75,6 +85,45 @@ public Action OnPlayerRunCmd(int client, int& buttons, int& impulse, float vel[3
 	return Plugin_Continue;
 }
 
+public void FF2R_OnAbility(int clientIdx, const char[] ability, AbilityData cfg) {
+	if (!cfg.IsMyPlugin())
+		return;
+	
+	if (!cfg.GetBool("enabled", true))
+		return;
+	
+	/**
+		"ff2_skybox"
+		{
+			"slot" "0"
+			"skybox" "sky_alpinestorm_01"
+
+			"plugin_name"    "ff2r_kolaxie_abilities"
+		}
+	*/
+
+	char skybox[64];
+	if (StrContains(ability, "ff2_skybox", false) == 0 && cfg.GetString("skybox", skybox, sizeof(skybox))) {
+		SetSkybox(skybox);
+	}
+}
+
+void SetSkybox(const char[] skybox) {
+	ConVar sv_skyname = FindConVar("sv_skyname");
+
+	if (sv_skyname == null) {
+		return;
+	}
+
+	sv_skyname.SetString(skybox);
+
+	for (int i = 1; i <= MaxClients; i++) {
+		if (IsClientInGame(i) && !IsFakeClient(i)) {
+			SendConVarValue(i, sv_skyname, skybox);
+		}
+	}
+}
+
 public Action Timer_StopCinematic(Handle timer, DataPack pack) {
 	pack.Reset();
 
@@ -116,6 +165,43 @@ public Action Timer_StopCinematic(Handle timer, DataPack pack) {
 
 public void OnClientDisconnect(int client) {
 	StopTimer(g_Cinematic[client]);
+}
+
+public void FF2R_OnBossCreated(int clientIdx, BossData cfg, bool setup)
+{
+	AbilityData ability = cfg.GetAbility("ff2_steamid_skins");
+
+	if (!ability.IsMyPlugin())
+		return;
+		
+	if (!ability.GetBool("enabled", true))
+		return;
+	
+	/**
+		"ff2_steamid_skins"
+		{
+			"plugin_name"    "ff2r_kolaxie_abilities"
+
+			"steamids"
+			{
+				"STEAM:0:blabla"   "0"
+				"STEAM:0:helloworld"   "1"
+			}
+		}
+	*/
+	
+	ConfigData steamids = cfg.GetSection("steamids");
+	if(steamids) {
+		int skin = cfg.GetInt(GetSteamID(clientIdx));
+		SetEntProp(clientIdx, Prop_Send, "m_nSkin", skin);
+		DispatchKeyValueInt(clientIdx, "skin", skin);
+	}
+}
+
+char[] GetSteamID(int client) {
+	char steamid[64];
+	GetClientAuthId(client, AuthId_Steam2, steamid, sizeof(steamid));
+	return steamid;
 }
 
 public void FF2R_OnBossRemoved(int client) {

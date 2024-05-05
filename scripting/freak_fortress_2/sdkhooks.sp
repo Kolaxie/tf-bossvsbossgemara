@@ -425,6 +425,12 @@ public Action TF2_OnTakeDamage(int victim, int &attacker, int &inflictor, float 
 			return changed ? Plugin_Changed : Plugin_Continue;
 		}
 	}
+
+	if (victim > 0 && victim <= MaxClients && attacker > 0 && attacker <= MaxClients && g_IsTeams && g_Team[victim] == g_Team[attacker]) {
+		damage = 0.0;
+		return Plugin_Changed;
+	}
+
 	return Plugin_Continue;
 }
 

@@ -218,6 +218,10 @@ enum
 
 	GlowEnable,
 	GlowTimeLeft,
+
+	TeamsEnabled,
+	TeamsTimer,
+	TeamsChance,
 	
 	Cvar_MAX
 }
@@ -239,6 +243,9 @@ bool g_FF2Party;
 
 int g_TF2Timer = -1;
 bool g_MapStarted = false;
+
+bool g_IsTeams;
+int g_Team[MAXPLAYERS + 1]; //0 = red, 1 = blue, 2 = yellow, 3 = green
 
 #include "freak_fortress_2/client.sp"
 #include "freak_fortress_2/stocks.sp"
@@ -267,6 +274,7 @@ bool g_MapStarted = false;
 #include "freak_fortress_2/sdkcalls.sp"
 #include "freak_fortress_2/sdkhooks.sp"
 #include "freak_fortress_2/steamworks.sp"
+#include "freak_fortress_2/teams.sp"
 #include "freak_fortress_2/tf2utils.sp"
 #include "freak_fortress_2/weapons.sp"
 

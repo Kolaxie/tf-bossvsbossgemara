@@ -51,6 +51,9 @@ void ConVar_PluginStart()
 	Cvar[SpritesEnable] = CreateConVar("ff2_plugin_sprites_enable", "1", "Should sprites be enabled above players heads?", _, true, 0.0, true, 1.0);
 	Cvar[GlowEnable] = CreateConVar("ff2_plugin_glow_enable", "1", "Should glows be enabled based on how much time is left?", _, true, 0.0, true, 1.0);
 	Cvar[GlowTimeLeft] = CreateConVar("ff2_plugin_glow_timeleft", "10", "How much time is left before glows are disabled?", _, true, 0.0);
+	Cvar[TeamsEnabled] = CreateConVar("ff2_plugin_teams_enabled", "1", "Should teams be enabled in-general?", _, true, 0.0, true, 1.0);
+	Cvar[TeamsTimer] = CreateConVar("ff2_plugin_teams_timer", "10", "How much time in seconds after the round starts for a team mode to potentially initiate?", _, true, 0.0);
+	Cvar[TeamsChance] = CreateConVar("ff2_plugin_teams_chance", "0.25", "What chance per round will the teams mode be initiated?", _, true, 0.0, true, 1.0);
 	
 	CreateConVar("ff2_oldjump", "1", "Backwards Compatibility ConVar", FCVAR_DONTRECORD|FCVAR_HIDDEN, true, 0.0, true, 1.0);
 	CreateConVar("ff2_base_jumper_stun", "0", "Backwards Compatibility ConVar", FCVAR_DONTRECORD|FCVAR_HIDDEN, true, 0.0, true, 1.0);
