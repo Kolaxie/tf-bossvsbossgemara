@@ -110,8 +110,10 @@ public void FF2R_OnAbility(int clientIdx, const char[] ability, AbilityData cfg)
 	if (StrEqual(ability, "ff2_bossconf", false) && cfg.GetInt("slot") == 0) {
 		ConfigData minion = cfg.GetSection("character");
 
-		if(minion)
+		if (minion)
 			FF2R_CreateBoss(clientIdx, minion);
+		else
+			LogError("No character section found for ff2_bossconf ability.");
 	}
 }
 
