@@ -107,21 +107,11 @@ public void FF2R_OnAbility(int clientIdx, const char[] ability, AbilityData cfg)
 		SetSkybox(skybox);
 	}
 
-	char config[64];
-	if (StrEqual(ability, "ff2_bossconf", false) && cfg.GetString("boss_name", config, sizeof(config)) > 0 && cfg.GetInt("slot") == 0) {
-		int special = FF2R_Bosses_GetByName(config);
+	if (StrEqual(ability, "ff2_bossconf", false) && cfg.GetInt("slot") == 0) {
+		ConfigData minion = cfg.GetSection("character");
 
-		if (special == -1) {
-			return;
-		}
-
-		ConfigMap newcfg = FF2R_Bosses_GetConfig(special);
-
-		if (newcfg == null) {
-			return;
-		}
-		
-		FF2R_SetBossData(clientIdx, newcfg, true);
+		if(minion)
+			FF2R_CreateBoss(clientIdx, minion);
 	}
 }
 
