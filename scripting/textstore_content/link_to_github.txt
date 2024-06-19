@@ -1,9 +1,0 @@
-Link to textstore github
-
-https://github.com/Batfoxkid/Text-Store
-
-----
-
-Link to textstore version
-
-https://github.com/Batfoxkid/Text-Store/releases/tag/1.0.5

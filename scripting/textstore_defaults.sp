@@ -66,6 +66,8 @@ public APLRes AskPluginLoad2(Handle myself, bool late, char[] error, int err_max
 	MarkNativeAsOptional("TF2Items_SetAttribute");
 	MarkNativeAsOptional("TF2Items_GiveNamedItem");
 	#endif
+
+	return APLRes_Success;
 }
 
 public void OnPluginStart()
@@ -105,7 +107,7 @@ stock bool IsValidClient(int client, bool replaycheck=true)
 	return true;
 }
 
-stock void GetClassesFromString(const char[] buffer, bool classes[view_as<int>(TFClassType)])
+stock void GetClassesFromString(const char[] buffer, bool classes[10])
 {
 	classes[TFClass_Unknown] = StrContains(buffer, "mer", false)!=-1;
 	classes[TFClass_Scout] = StrContains(buffer, "sco", false)!=-1;
@@ -200,5 +202,3 @@ public void OnPostInventoryApplication(Event event, const char[] name, bool dont
 	TF2Items_OnPostInventoryApplication(event);
 	#endif
 }
-
-#file "Text Store: Defaults"

@@ -67,6 +67,7 @@ public any Native_SetInv(Handle plugin, int numParams)
 		}
 	}
 	Items.SetArray(index, item);
+	return 0;
 }
 
 public any Native_Cash(Handle plugin, int numParams)
@@ -89,6 +90,7 @@ public any Native_ClientSave(Handle plugin, int numParams)
 		ThrowNativeError(SP_ERROR_NATIVE, ERROR_CLIENTINDEX, client);
 
 	OnClientDisconnect(client);
+	return 0;
 }
 
 public any Native_ClientReload(Handle plugin, int numParams)
@@ -98,6 +100,7 @@ public any Native_ClientReload(Handle plugin, int numParams)
 		ThrowNativeError(SP_ERROR_NATIVE, ERROR_CLIENTINDEX, client);
 
 	OnClientPostAdminCheck(client);
+	return 0;
 }
 
 public any Native_GetItems(Handle plugin, int numParams)
