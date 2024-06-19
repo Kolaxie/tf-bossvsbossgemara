@@ -147,8 +147,9 @@ public void Events_RoundInit(Event event, const char[] name, bool dontBroadcast)
 
 	g_IsTeams = false;
 	
-	if (Cvar[TeamsEnabled].BoolValue && GetRandomFloat(0.0, 1.0) > Cvar[TeamsChance].FloatValue) {
-		CreateTimer(Cvar[TeamsTimer].FloatValue, Timer_StartTeams, _, TIMER_FLAG_NO_MAPCHANGE);
+	if (Cvar[TeamsEnabled].BoolValue && GetRandomFloat(0.0, 1.0) <= Cvar[TeamsChance].FloatValue) {
+		PrintToChatAll("Teams have been enabled for this round!");
+		CreateTimer(10.0 + Cvar[TeamsTimer].FloatValue, Timer_StartTeams, _, TIMER_FLAG_NO_MAPCHANGE);
 	}
 }
 

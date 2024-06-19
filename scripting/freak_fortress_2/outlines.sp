@@ -69,9 +69,30 @@ void GiveOutline(int client) {
 		return;
 	}
 
-	if (g_Glow[client] == -1) {
-		g_Glow[client] = TF2_CreateGlow(client, GetClientTeam(client) == 2 ? {255, 0, 0, 255} : {0, 0, 255, 255});
+	ClearOutline(client);
+
+	int color[4];
+
+	if (g_IsTeams) {
+		switch (g_Team[client]) {
+			case 0: {
+				color = {255, 0, 0, 255};
+			}
+			case 1: {
+				color = {0, 0, 255, 255};
+			}
+			case 2: {
+				color = {255, 255, 0, 255};
+			}
+			case 3: {
+				color = {0, 255, 0, 255};
+			}
+		}
+	} else {
+		color = GetClientTeam(client) == 2 ? {255, 0, 0, 255} : {0, 0, 255, 255};
 	}
+
+	g_Glow[client] = TF2_CreateGlow(client, color);
 }
 
 void ClearOutlines() {

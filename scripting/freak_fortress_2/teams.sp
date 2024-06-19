@@ -53,5 +53,7 @@ public Action Timer_StartTeams(Handle timer) {
 		CPrintToChat(client, "You have been assigned to team: %s", sTeam);
 	}
 
+	GiveOutlines();
+
 	return Plugin_Continue;
 }
