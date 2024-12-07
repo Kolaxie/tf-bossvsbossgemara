@@ -5,7 +5,7 @@
 
 Features:
 
--Team indicator
--Raid (1VAll system) + textstore support
--Unfinished 4 team gamemode
--Ultra (1Vall + 1 raid system) + textstore support
+Team indicator
+Raid (1VAll system) + textstore support
+Unfinished 4 team gamemode
+Ultra (1Vall + 1 raid system) + textstore support
